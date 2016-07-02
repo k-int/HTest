@@ -56,7 +56,7 @@ println("Using config ${config}");
 println("NBK Ingest Phase 1 Adapter for hathitrust");
 
 println("Pulling latest messages");
-pullLatest(config);
+pullLatest(config, cfg_file);
 println("All done");
 
 println("Updating config");
@@ -69,16 +69,16 @@ cfg_file << toJson(config);
 System.exit(0);
 
 
-def addRecord(recordid, raw) {
+
+def addRecord(recordid, raw, htable) {
 
   // We are assuming a table created in the hbase shell using 
   // create 'sourceRecord', 'nbk'
 
   // Instantiating Configuration class
-  Configuration config = HBaseConfiguration.create();
-
+  // Configuration config = HBaseConfiguration.create();
   // Instantiating HTable class
-  HTable htable = new HTable(config, "sourceRecord");
+  // HTable htable = new HTable(config, "sourceRecord");
 
   try {
     // def recordid = java.util.UUID.randomUUID().toString();
@@ -88,8 +88,8 @@ def addRecord(recordid, raw) {
     // p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(raw) )
     htable.put(p);
-    htable.flushCommits()
-    htable.close()
+    // htable.flushCommits()
+    // htable.close()
   }
   catch ( Exception e ) {
     e.printStackTrace()
@@ -98,7 +98,7 @@ def addRecord(recordid, raw) {
 
 
 
-def pullLatest(config) {
+def pullLatest(config, cfg_file) {
 
   // def cursor = SyncCursor.findByActivity('KBPlusTitles') ?: new SyncCursor(activity:'KBPlusTitles', lastTimestamp:0).save(flush:true, failOnError:true);
   if ( config.cursor == null ) {
@@ -109,10 +109,18 @@ def pullLatest(config) {
 
   // log.debug("Got cursor ${cursor}");
 
+  int counter = 0;
+
+  // open hbase table for writing a page of results
+  Configuration hbase_config = HBaseConfiguration.create();
+  HTable htable = new HTable(hbase_config, "sourceRecord");
+
   // http://quod.lib.umich.edu/cgi/o/oai/oai?verb=ListRecords&metadataPrefix=marc21&set=hathitrust
-  doSync('http://quod.lib.umich.edu','/cgi/o/oai/oai', 'marc21', 'hathitrust', cursor) { r ->
+  doSync('http://quod.lib.umich.edu','/cgi/o/oai/oai', 'marc21', 'hathitrust', cursor, config, cfg_file, htable) { r ->
 
     def result = [:]
+    def ctr = 0;
+    def sync_start_time = System.currentTimeMillis();
 
     try {
       def sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -134,19 +142,29 @@ def pullLatest(config) {
         def marcxml_record=sw.toString();
         // println("XML Record is ${marcxml_record}");
 
-        println("Add ${record_id_str}");
-        addRecord(record_id_str,marcxml_record);
+        println("Add [${counter++}]${record_id_str}");
+        addRecord(record_id_str,marcxml_record, htable);
+        ctr++
       }
     }
     catch ( Exception e ) {
       result.message = e.message;
+    }
+    finally {
+    }
+
+    if ( ( ctr > 0 ) && ( ctr % 1000 == 0 ) ) {
+      def elapsed = System.currentTimeMillis() - sync_start_time
+      println("Flush page of records (ctr=${ctr}) elapsed=${elapsed} avg=${elapsed/ctr}");
+      htable.flushCommits()
+      htable.close()
     }
 
     result
   }
 }
 
-public doSync(host, path, prefix, set, cursor, notificationTarget) {
+public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notificationTarget) {
   println("Get latest changes ${host} ${path} ${prefix} ${cursor}");
 
   def http = new HTTPBuilder( host )
@@ -220,6 +238,12 @@ public doSync(host, path, prefix, set, cursor, notificationTarget) {
         println(err)
       }
     }
+
+
+    println("Updating config ${config}");
+    cfg_file.delete()
+    cfg_file << toJson(config);
+
     // update cursor
     cursor.lastTimestamp = lastTimestamp
     // cursor.save(flush:true, failOnError:true);
