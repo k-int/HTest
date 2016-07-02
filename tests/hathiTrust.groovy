@@ -40,6 +40,8 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import groovyx.net.http.*
 
+import groovy.xml.XmlUtil  
+
 config = null;
 cfg_file = new File('./sync-hathitrust-config.json')
 if ( cfg_file.exists() ) {
@@ -67,7 +69,7 @@ cfg_file << toJson(config);
 System.exit(0);
 
 
-def addRecord(record) {
+def addRecord(recordid, raw) {
 
   // We are assuming a table created in the hbase shell using 
   // create 'sourceRecord', 'nbk'
@@ -79,12 +81,12 @@ def addRecord(record) {
   HTable htable = new HTable(config, "sourceRecord");
 
   try {
-    def recordid = java.util.UUID.randomUUID().toString();
+    // def recordid = java.util.UUID.randomUUID().toString();
     Put p = new Put(Bytes.toBytes(recordid))
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("sourceid"), Bytes.toBytes("hathitrust") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("timestamp"), Bytes.toBytes("${System.currentTimeMillis()}".toString()))
-    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
-    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes("RawRecord") )
+    // p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(raw) )
     htable.put(p);
     htable.flushCommits()
     htable.close()
@@ -116,11 +118,25 @@ def pullLatest(config) {
       def sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
       def record_ts_str = r.header.datestamp.text()
+      def record_id_str = r.header.identifier.text()
       result.ts = sdf.parse(record_ts_str)?.getTime()
 
-      def identifiers = []
-      println("Process record ${r}");
-      // def title_id = r.metadata.kbplus.title.@id.text()
+      if ( r.header.'@status' == 'deleted' ) {
+      }
+      else {
+        def identifiers = []
+        // println("Process record ${r}");
+        // def title_id = r.metadata.kbplus.title.@id.text()
+        def marc21_record = r.metadata
+        StringWriter sw = new StringWriter()
+        XmlUtil xmlUtil = new XmlUtil()  
+        xmlUtil.serialize(r.metadata, sw)
+        def marcxml_record=sw.toString();
+        // println("XML Record is ${marcxml_record}");
+
+        println("Add ${record_id_str}");
+        addRecord(record_id_str,marcxml_record);
+      }
     }
     catch ( Exception e ) {
       result.message = e.message;
@@ -176,7 +192,6 @@ public doSync(host, path, prefix, set, cursor, notificationTarget) {
         int ctr=0
         println("In response handler");
         println("Status ${resp.statusLine}")
-        println("xml response object :: ${xml?.class.name}");
 
         // def slurper = new groovy.util.XmlSlurper()
         // def parsed_xml = slurper.parseText(xml.text)
