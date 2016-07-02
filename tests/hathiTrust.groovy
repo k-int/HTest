@@ -22,4 +22,34 @@ import groovy.time.*
 
 println("NBK Ingest Phase 1 Adapter for hathitrust");
 
+addRecord([:]);
+
 System.exit(0);
+
+
+def addRecord(record) {
+
+  // We are assuming a table created in the hbase shell using 
+  // create 'sourceRecord', 'nbk'
+
+  // Instantiating Configuration class
+  Configuration config = HBaseConfiguration.create();
+
+  // Instantiating HTable class
+  HTable htable = new HTable(config, "sourceRecord");
+
+  try {
+    def recordid = java.util.UUID.randomUUID().toString();
+    Put p = new Put(Bytes.toBytes(recordid))
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("sourceid"), Bytes.toBytes("hathitrust") )
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("timestamp"), Bytes.toBytes("${System.currentTimeMillis()}".toString()))
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes("RawRecord") )
+    htable.put(p);
+    htable.flushCommits()
+    htable.close()
+  }
+  catch ( Exception e ) {
+    e.printStackTrace()
+  }
+}
