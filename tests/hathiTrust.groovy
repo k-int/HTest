@@ -176,12 +176,13 @@ public doSync(host, path, prefix, set, cursor, notificationTarget) {
         int ctr=0
         println("In response handler");
         println("Status ${resp.statusLine}")
+        println("xml response object :: ${xml?.class.name}");
 
-        def slurper = new groovy.util.XmlSlurper()
+        // def slurper = new groovy.util.XmlSlurper()
         // def parsed_xml = slurper.parseText(xml.text)
-        def parsed_xml = slurper.parse(xml)
+        // def parsed_xml = slurper.parse(xml)
 
-        parsed_xml?.'ListRecords'?.'record'.each { r ->
+        xml?.'ListRecords'?.'record'.each { r ->
           def clr = notificationTarget(r)
           println(clr);
           ctr++
@@ -196,7 +197,7 @@ public doSync(host, path, prefix, set, cursor, notificationTarget) {
           more=false
         }
 
-        resumption = parsed_xml?.'ListRecords'?.'resumptionToken'
+        resumption = xml?.'ListRecords'?.'resumptionToken'
         println("Complete ${ctr} ${more} ${resumption}");
       }
 
