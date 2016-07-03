@@ -177,6 +177,10 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
   println("Attempt get...");
 
   def resumption=null
+  int ctr=0
+  def request_start_time = 0
+  def request_complete_time = 0
+  def ingest_complete_time = 0
 
   // perform a GET request, expecting XML response data
   while ( more ) {
@@ -198,6 +202,7 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
     }
 
     println("Query params : ${qry} ");
+    request_start_time = System.currentTimeMillis();
 
     http.request( GET, XML ) { req ->
 
@@ -207,9 +212,9 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
 
       // response handler for a success response code:
       response.success = { resp, xml ->
-        int ctr=0
         println("In response handler");
         println("Status ${resp.statusLine}")
+       request_complete_time = System.currentTimeMillis();
 
         // def slurper = new groovy.util.XmlSlurper()
         // def parsed_xml = slurper.parseText(xml.text)
@@ -230,6 +235,7 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
           more=false
         }
 
+        ingest_complete_time = System.currentTimeMillis();
         resumption = xml?.'ListRecords'?.'resumptionToken'
         println("Complete ${ctr} ${more} ${resumption}");
       }
@@ -240,12 +246,13 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
     }
 
 
-    println("Updating config ${config}");
+    cursor.lastTimestamp = lastTimestamp
+
+    println("Updating config ${config} ${new Date()} fetchTime:${request_complete_time-request_start_time} hputTime:${ingest_complete_time-request_complete_time}");
     cfg_file.delete()
     cfg_file << toJson(config);
 
     // update cursor
-    cursor.lastTimestamp = lastTimestamp
     // cursor.save(flush:true, failOnError:true);
   }
 }
