@@ -54,7 +54,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,"ExampleSummary");
-job.setJarByClass(MySummaryJob.class);     // class that contains mapper and reducer
+job.setJarByClass(mr1.class);     // class that contains mapper and reducer
 
 Scan scan = new Scan();
 scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
