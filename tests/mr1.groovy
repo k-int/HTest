@@ -8,6 +8,7 @@
   @Grab(group='org.apache.hbase', module='hbase-server', version='1.2.1'),
   @Grab(group='org.apache.hbase', module='hbase-common', version='1.2.1'),
   @Grab(group='org.apache.hbase', module='hbase-hadoop2-compat', version='1.2.1'),
+  @Grab(group='org.apache.hbase', module='hbase-hadoop-compat', version='1.2.1'),
   @Grab(group='org.apache.hadoop', module='hadoop-common', version='2.7.2'),
   @Grab(group='org.apache.hadoop', module='hadoop-mapreduce-client-core', version='2.7.2'),
   @Grab(group='org.apache.hadoop', module='hadoop-mapreduce-client-jobclient', version='2.7.2'),
