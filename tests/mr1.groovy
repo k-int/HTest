@@ -54,7 +54,7 @@ import org.apache.hadoop.mapreduce.*
 import org.apache.hadoop.mapreduce.Mapper.Context
 
 Configuration config = HBaseConfiguration.create();
-Job job = new Job(config,"ExampleSummary");
+Job job = new Job(config,'ExampleSummary');
 job.setJarByClass(mr1.class);     // class that contains mapper and reducer
 
 Scan scan = new Scan();
@@ -63,50 +63,56 @@ scan.setCacheBlocks(false);  // don't set to true for MR jobs
 // set other scan attrs
 
 TableMapReduceUtil.initTableMapperJob(
-	'sourceRecord',        // input table
-	scan,               // Scan instance to control CF and attribute selection
-	MyMapper.class,     // mapper class
-	Text.class,         // mapper output key
-	IntWritable.class,  // mapper output value
-	job);
+  'sourceRecord',        // input table
+  scan,               // Scan instance to control CF and attribute selection
+  MyMapper.class,     // mapper class
+  Text.class,         // mapper output key
+  IntWritable.class,  // mapper output value
+  job);
 
 TableMapReduceUtil.initTableReducerJob(
-	'countResult',        // output table
-	MyTableReducer.class,    // reducer class
-	job);
+  'countResult',        // output table
+  MyTableReducer.class,    // reducer class
+  job);
 
 job.setNumReduceTasks(1);   // at least one, adjust as required
 
 boolean b = job.waitForCompletion(true);
 if (!b) {
-	throw new IOException("error with job!");
+  throw new IOException('error with job!');
 }
 
 
 public class MyMapper extends TableMapper<Text, IntWritable>  {
 
-	private final IntWritable ONE = new IntWritable(1);
-   	private Text text = new Text();
+  private final IntWritable ONE = new IntWritable(1);
+     private Text text = new Text();
 
-   	public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-        	String val = new String(value.getValue(Bytes.toBytes("cf"), Bytes.toBytes("attr1")));
-          	text.set(val);     // we can only emit Writables...
-
-        	context.write(text, ONE);
-   	}
+     public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
+       // Get sourceRecord.raw -- which should be a marcxml record in this case
+       byte[] val_bytes = value.getValue(Bytes.toBytes('nbk'), Bytes.toBytes('raw'))
+       if ( val_bytes ) {
+         String val = new String(val_bytes)
+         text.set(val);     // we can only emit Writables...
+         context.write(text, ONE);
+       }
+       else {
+         println("val_bytes null");
+       }
+     }
 }
 
 public class MyTableReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
 
- 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-    		int i = 0;
-    		for (IntWritable val : values) {
-    			i += val.get();
-    		}
-    		Put put = new Put(Bytes.toBytes(key.toString()));
-    		put.add(Bytes.toBytes("cf"), Bytes.toBytes("count"), Bytes.toBytes(i));
+   public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+        int i = 0;
+        for (IntWritable val : values) {
+          i += val.get();
+        }
+        Put put = new Put(Bytes.toBytes(key.toString()));
+        put.add(Bytes.toBytes('cf'), Bytes.toBytes('count'), Bytes.toBytes(i));
 
-    		context.write(null, put);
-   	}
+        context.write(null, put);
+     }
 }
 
