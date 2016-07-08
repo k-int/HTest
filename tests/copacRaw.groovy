@@ -70,7 +70,7 @@ System.exit(0);
 
 
 
-def addRecord(recordid, raw, htable) {
+def addRecord(recordid, recsyn, raw, htable) {
 
   // We are assuming a table created in the hbase shell using 
   // create 'sourceRecord', 'nbk'
@@ -83,8 +83,9 @@ def addRecord(recordid, raw, htable) {
   try {
     // def recordid = java.util.UUID.randomUUID().toString();
     Put p = new Put(Bytes.toBytes(recordid))
-    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("sourceid"), Bytes.toBytes("hathitrust") )
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("sourceid"), Bytes.toBytes("copac") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("timestamp"), Bytes.toBytes("${System.currentTimeMillis()}".toString()))
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("recsyn"), Bytes.toBytes(recsyn) )
     // p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(raw) )
     htable.put(p);
@@ -104,6 +105,10 @@ def pullLatest(config, cfg_file) {
   def throttle_counter = 10
   def REST_SECONDS = 3;
 
+  // open hbase table for writing a page of results
+  Configuration hbase_config = HBaseConfiguration.create();
+  HTable htable = new HTable(hbase_config, "sourceRecord");
+
   int MAX_CTR = 100;
   for ( int i=0; i<MAX_CTR; i++ ) {
     def rec = getRecord(i, config, cfg_file);
@@ -114,6 +119,16 @@ def pullLatest(config, cfg_file) {
     else {
       bad_seq = 0;
       println("Record: ${rec}");
+
+      StringWriter sw = new StringWriter()
+      XmlUtil xmlUtil = new XmlUtil()
+      xmlUtil.serialize(rec, sw)
+      def mods_xml_record=sw.toString();
+      def record_id_str = rec.recordInfo.text()
+
+      println("Store record id ${record_id_str} ${mods_xml_record}");
+
+      addRecord(record_id_str, 'mods', mods_xml_record, htable);
     }
 
     if ( bad_seq > 150 )
@@ -121,15 +136,20 @@ def pullLatest(config, cfg_file) {
 
     if ( i % throttle_counter == 0 ) {
       println("Throttle rest");
+      htable.flushCommits()
       synchronized(this) {
         Thread.sleep(REST_SECONDS*1000)
       }
     }
   }
+
+  htable.flushCommits()
+  htable.close()
+
 }
 
 
-def getRecord(recno,config, cfg_file) {
+def getRecord(recno, config, cfg_file) {
 
   def result = null;
 
