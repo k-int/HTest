@@ -99,11 +99,39 @@ def addRecord(recordid, raw, htable) {
 
 
 def pullLatest(config, cfg_file) {
-  getRecord(2000000, config, cfg_file);
+
+  def bad_seq = 0;
+  def throttle_counter = 10
+  def REST_SECONDS = 3;
+
+  int MAX_CTR = 100;
+  for ( int i=0; i<MAX_CTR; i++ ) {
+    def rec = getRecord(i, config, cfg_file);
+    if ( rec == null ) {
+      println("**BADROW** ${i}");
+      bad_seq++
+    }
+    else {
+      bad_seq = 0;
+      println("Record: ${rec}");
+    }
+
+    if ( bad_seq > 150 )
+      break
+
+    if ( i % throttle_counter == 0 ) {
+      println("Throttle rest");
+      synchronized(this) {
+        Thread.sleep(REST_SECONDS*1000)
+      }
+    }
+  }
 }
 
 
 def getRecord(recno,config, cfg_file) {
+
+  def result = null;
 
   // def host = http://copac.jisc.ac.uk/id/1500000?style=xml
   def host = 'http://copac.jisc.ac.uk'
@@ -123,11 +151,14 @@ def getRecord(recno,config, cfg_file) {
     // response handler for a success response code:
     response.success = { resp, xml ->
       println("Success ${resp}");
+      result = xml;
     }
 
-    response.failure = { resp, xml ->
+    response.failure = { resp ->
       println("failure ${resp}");
     }
   }
+
+  result
 }
 
