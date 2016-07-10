@@ -176,7 +176,7 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
   def more = true
   println("Attempt get...");
 
-  def resumption=null
+  def resumption=config.resumption;
   int ctr=0
   def request_start_time = 0
   def request_complete_time = 0
@@ -237,6 +237,9 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
 
         ingest_complete_time = System.currentTimeMillis();
         resumption = xml?.'ListRecords'?.'resumptionToken'
+        if ( resumption ) {
+          config.resumption = resumption
+        }
         println("Complete ${ctr} ${more} ${resumption}");
       }
 

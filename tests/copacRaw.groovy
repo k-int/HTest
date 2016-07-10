@@ -103,7 +103,7 @@ def pullLatest(config, cfg_file) {
 
   def bad_seq = 0;
   def throttle_counter = 10
-  def REST_SECONDS = 3;
+  def REST_SECONDS = 1;
 
   // open hbase table for writing a page of results
   Configuration hbase_config = HBaseConfiguration.create();
