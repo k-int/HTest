@@ -109,24 +109,24 @@ def pullLatest(config, cfg_file) {
   Configuration hbase_config = HBaseConfiguration.create();
   HTable htable = new HTable(hbase_config, "sourceRecord");
 
-  int MAX_CTR = 100;
-  for ( int i=0; i<MAX_CTR; i++ ) {
+  int MAX_CTR = 15000000;
+  for ( int i=(config.copacCursor?:1); i<MAX_CTR; i++ ) {
     def rec = getRecord(i, config, cfg_file);
     if ( rec == null ) {
-      println("**BADROW** ${i}");
       bad_seq++
+      println("**BADROW** ${i} ${bad_seq}");
     }
     else {
       bad_seq = 0;
-      println("Record: ${rec}");
 
       StringWriter sw = new StringWriter()
       XmlUtil xmlUtil = new XmlUtil()
       xmlUtil.serialize(rec, sw)
       def mods_xml_record=sw.toString();
-      def record_id_str = rec.recordInfo.text()
+      def record_id_str = rec.recordInfo.recordIdentifier.text()
 
-      println("Store record id ${record_id_str} ${mods_xml_record}");
+      // println("Store record id ${record_id_str} ${mods_xml_record}");
+      println("Store record id ${record_id_str} (Ctr ${i})");
 
       addRecord(record_id_str, 'mods', mods_xml_record, htable);
     }
@@ -135,9 +135,13 @@ def pullLatest(config, cfg_file) {
       break
 
     if ( i % throttle_counter == 0 ) {
-      println("Throttle rest");
+      println("Throttle rest ${new Date()}");
       htable.flushCommits()
       synchronized(this) {
+      println("Updating config");
+      cfg_file.delete()
+      config.copacCursor=i
+      cfg_file << toJson(config);
         Thread.sleep(REST_SECONDS*1000)
       }
     }
