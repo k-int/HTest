@@ -102,8 +102,8 @@ def addRecord(recordid, recsyn, raw, htable) {
 def pullLatest(config, cfg_file) {
 
   def bad_seq = 0;
-  def throttle_counter = 10
-  def REST_SECONDS = 1;
+  def throttle_counter = 50
+  def REST_SECONDS = 2;
 
   // open hbase table for writing a page of results
   Configuration hbase_config = HBaseConfiguration.create();
