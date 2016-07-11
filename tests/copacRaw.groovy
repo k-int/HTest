@@ -131,7 +131,7 @@ def pullLatest(config, cfg_file) {
       addRecord(record_id_str, 'mods', mods_xml_record, htable);
     }
 
-    if ( bad_seq > 150 )
+    if ( bad_seq > 1500 )
       break
 
     if ( i % throttle_counter == 0 ) {

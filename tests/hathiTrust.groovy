@@ -238,7 +238,7 @@ public doSync(host, path, prefix, set, cursor, config, cfg_file, htable, notific
         ingest_complete_time = System.currentTimeMillis();
         resumption = xml?.'ListRecords'?.'resumptionToken'
         if ( resumption ) {
-          config.resumption = resumption
+          config.cursor.resumption = "${resumption}".toString()
         }
         println("Complete ${ctr} ${more} ${resumption}");
       }
