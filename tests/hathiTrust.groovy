@@ -2,8 +2,9 @@
 
 
 // https://mvnrepository.com/artifact/org.apache.hbase/hbase
+// http://repo.spring.io/libs-release-remote/
 @Grapes([
-  // @GrabResolver(name='mvnRepository', root='http://central.maven.org/maven2/'),
+  @GrabResolver(name='mvnRepository', root='http://repo.spring.io/libs-release-remote/'),
   @Grab(group='org.apache.hbase', module='hbase-client', version='1.2.1'),
   @Grab(group='org.apache.hbase', module='hbase-common', version='1.2.1'),
   @Grab(group='org.apache.hadoop', module='hadoop-common', version='2.7.2'),
@@ -79,6 +80,7 @@ def addRecord(recordid, raw, htable) {
   // Configuration config = HBaseConfiguration.create();
   // Instantiating HTable class
   // HTable htable = new HTable(config, "sourceRecord");
+  println("AddRecord ${recordid}");
 
   try {
     // def recordid = java.util.UUID.randomUUID().toString();
@@ -87,6 +89,8 @@ def addRecord(recordid, raw, htable) {
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("timestamp"), Bytes.toBytes("${System.currentTimeMillis()}".toString()))
     // p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(raw) )
+
+    println("AddRecord ${recordid} :: Calling put");
     htable.put(p);
     // htable.flushCommits()
     // htable.close()
@@ -94,6 +98,8 @@ def addRecord(recordid, raw, htable) {
   catch ( Exception e ) {
     e.printStackTrace()
   }
+
+  println("Done");
 }
 
 
