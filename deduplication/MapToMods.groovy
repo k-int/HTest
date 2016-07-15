@@ -55,9 +55,12 @@ import org.apache.hadoop.mapreduce.Mapper.Context
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
-job.setJarByClass(mr1.class);     // class that contains mapper and reducer
+job.setJarByClass(MapToMods.class);     // class that contains mapper and reducer -- for the groovy scriplet -- this
 
-Scan scan = new Scan();
+// Scan scan = new Scan();
+// In this version, we only process 1 row
+Scan scan = new Scan(Bytes.toBytes('oai:quod.lib.umich.edu:MIU01-003496759'),
+                     Bytes.toBytes('oai:quod.lib.umich.edu:MIU01-003496759'));
 scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
 scan.setCacheBlocks(false);  // don't set to true for MR jobs
 // set other scan attrs
@@ -65,7 +68,7 @@ scan.setCacheBlocks(false);  // don't set to true for MR jobs
 TableMapReduceUtil.initTableMapperJob(
   'sourceRecord',        // input table
   scan,               // Scan instance to control CF and attribute selection
-  MyMapper.class,     // mapper class
+  MapToModsMapper.class,     // mapper class
   Text.class,         // mapper output key
   IntWritable.class,  // mapper output value
   job);
@@ -73,8 +76,6 @@ TableMapReduceUtil.initTableMapperJob(
 TableMapReduceUtil.initTableReducerJob(
   'countResult',        // output table
   MyTableReducer.class,    // reducer class
-  ImmutableBytesWritable.class,
-  IntWritable.class,
   job);
 
 job.setNumReduceTasks(1);   // at least one, adjust as required
@@ -85,12 +86,15 @@ if (!b) {
 }
 
 
-public class MyMapper extends TableMapper<Text, IntWritable>  {
+public class MapToModsMapper extends TableMapper<Text, IntWritable>  {
+
+  private static final String MARCXML2MODS_XSLT="http://www.loc.gov/standards/mods/v3/MARC21slim2MODS3.xsl";
 
   private final IntWritable ONE = new IntWritable(1);
-     private Text text = new Text();
 
-     public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
+  private Text text = new Text();
+
+  public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
        // Get sourceRecord.raw -- which should be a marcxml record in this case
        byte[] val_bytes = value.getValue(Bytes.toBytes('nbk'), Bytes.toBytes('raw'))
        if ( val_bytes ) {
@@ -101,7 +105,7 @@ public class MyMapper extends TableMapper<Text, IntWritable>  {
        else {
          println("val_bytes null");
        }
-     }
+  }
 }
 
 public class MyTableReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {

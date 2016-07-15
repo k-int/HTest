@@ -87,6 +87,7 @@ def addRecord(recordid, raw, htable) {
     Put p = new Put(Bytes.toBytes(recordid))
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("sourceid"), Bytes.toBytes("hathitrust") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("timestamp"), Bytes.toBytes("${System.currentTimeMillis()}".toString()))
+    p.add( Bytes.toBytes("nbk"), Bytes.toBytes("recsyn"), Bytes.toBytes('marcxml'.toString()))
     // p.add( Bytes.toBytes("nbk"), Bytes.toBytes("canonical"), Bytes.toBytes("CanonicalRecord") )
     p.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(raw) )
 
