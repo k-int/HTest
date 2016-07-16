@@ -15,6 +15,11 @@ hbase shell example commands
 
 
 get 'sourceRecord', 'oai:quod.lib.umich.edu:MIU01-003496759'
+disable 'inputRecord'
+drop 'inputRecord'
+create 'inputRecord', 'nbk'
+scan 'inputRecord' , {COLUMNS => [ 'nbk:title_hash_str', 'nbk:title_hash']}
+
 
 
 

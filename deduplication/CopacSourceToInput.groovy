@@ -46,6 +46,9 @@ import org.apache.hadoop.hbase.KeyValue
 import org.apache.hadoop.mapred.lib.NullOutputFormat
 import java.security.MessageDigest
 
+import java.text.Normalizer
+
+
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
@@ -95,6 +98,7 @@ if (!b) {
 public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
 
   private static final String MARCXML2MODS_XSLT="http://www.loc.gov/standards/mods/v3/MARC21slim2MODS3.xsl";
+  public static List STOPWORDS = []
 
   @Override
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
@@ -118,14 +122,14 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
       // The knowledgebase ruleset consulted at ingest time may indicate this item needs a discriminator
       def discriminator = null;
 
-      def title_hash_str = normalise(['BKM',m.titleInfo.title?.text(), discriminator]);
+      def title_hash_str = normalise(['BKM',m.titleInfo.title?.text(), m.titleInfo.subTitle?.text(), discriminator]);
       def title_hash = getBucket(title_hash_str);
 
       // Work hash has name parts also
-      def work_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), discriminator]));
+      def work_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), discriminator]));
 
       // Instance hash adds edition for books
-      def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(),m.classification?.edition?.text(), discriminator]));
+      def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), m.classification?.edition?.text(), discriminator]));
 
       context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
                     getContributorRecord(new_record_uuid, atomic_record, 'mods', title_hash_str, title_hash, work_hash, instance_hash));
@@ -184,11 +188,38 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
       }
     }
 
-    return sw.toString().trim().toLowerCase()
+    return norm2(sw.toString()).trim().toLowerCase()
   }
 
-  private static norm2(String s ) {
-    // import code from gokb here for normalising
-    return s.toLowerCase();
+  public static String norm2(String s) {
+
+    // Ensure s is not null.
+    if (!s) s = "";
+
+    // Normalize to the D Form and then remove diacritical marks.
+    s = Normalizer.normalize(s, Normalizer.Form.NFD)
+    s = s.replaceAll("\\p{InCombiningDiacriticalMarks}+","");
+
+    // lowercase.
+    s = s.toLowerCase();
+
+    // Break apart the string.
+    String[] components = s.split("\\s");
+
+    // Re-piece the array back into a string.
+    String normstring = "";
+    components.each { String piece ->
+      if ( !STOPWORDS.contains(piece)) {
+
+        // Remove all unnecessary characters.
+        normstring += piece.replaceAll("[^a-z0-9]", " ") + " ";
+      }
+    }
+
+    // normstring.trim().replaceAll(" +", " ")
+    // Do spaces really add anything for our purposes here, or are random spaces more likely to creep in to the
+    // source records and throw the matching? Suspect the latter, kill them for now
+    normstring.trim().replaceAll(' ', '')
   }
+
 }
