@@ -44,6 +44,8 @@ import org.apache.hadoop.mapreduce.*
 import org.apache.hadoop.mapreduce.Mapper.Context
 import org.apache.hadoop.hbase.KeyValue
 import org.apache.hadoop.mapred.lib.NullOutputFormat
+import java.security.MessageDigest
+
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
@@ -113,17 +115,49 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
       def atomic_record=sw.toString();
       def new_record_uuid = UUID.randomUUID().toString()
 
+      // The knowledgebase ruleset consulted at ingest time may indicate this item needs a discriminator
+      def discriminator = null;
+
+      def title_hash_str = normalise(['BKM',m.titleInfo.title?.text(), discriminator]);
+      def title_hash = getBucket(title_hash_str);
+
+      // Work hash has name parts also
+      def work_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), discriminator]));
+
+      // Instance hash adds edition for books
+      def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(),m.classification?.edition?.text(), discriminator]));
+
       context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
-                    getContributorRecord(new_record_uuid, atomic_record, 'mods', null, null));
+                    getContributorRecord(new_record_uuid, atomic_record, 'mods', title_hash_str, title_hash, work_hash, instance_hash));
     }
 
 
   }
 
-  private static Put getContributorRecord(String contributor_record_id, String contributor_record, String recsyn, String work_hash, String instance_hash) throws IOException {
+  private static Put getContributorRecord(String contributor_record_id, 
+                                          String contributor_record, 
+                                          String recsyn, 
+                                          String title_hash_str, 
+                                          String title_hash, 
+                                          String work_hash, 
+                                          String instance_hash) throws IOException {
+
     Put put = new Put(Bytes.toBytes(contributor_record_id));
     put.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(contributor_record) )
     put.add( Bytes.toBytes("nbk"), Bytes.toBytes("recsyn"), Bytes.toBytes(recsyn) )
+  
+    if ( title_hash_str ) 
+      put.add( Bytes.toBytes("nbk"), Bytes.toBytes("title_hash_str"), Bytes.toBytes(title_hash_str) )
+
+    if ( title_hash ) 
+      put.add( Bytes.toBytes("nbk"), Bytes.toBytes("title_hash"), Bytes.toBytes(title_hash) )
+
+    if ( work_hash ) 
+      put.add( Bytes.toBytes("nbk"), Bytes.toBytes("work_hash"), Bytes.toBytes(work_hash) )
+
+    if ( instance_hash ) 
+      put.add( Bytes.toBytes("nbk"), Bytes.toBytes("instance_hash"), Bytes.toBytes(instance_hash) )
+
     return put;
   }
 
@@ -134,5 +168,27 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
       put.add(kv);
     }
     return put;
+  }
+
+  private static String getBucket(String s) {
+    MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
+  }
+
+  private static String normalise(List components) {
+    def sw = new StringWriter()
+    def first = true;
+    components.each { c ->
+      if ( c ) {
+        if ( first ) { first = false; } else { sw.write (' '); }
+        sw.write(c)
+      }
+    }
+
+    return sw.toString().trim().toLowerCase()
+  }
+
+  private static norm2(String s ) {
+    // import code from gokb here for normalising
+    return s.toLowerCase();
   }
 }
