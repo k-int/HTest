@@ -1,7 +1,15 @@
 #!groovy
 
 
+// See
+// http://hbase.apache.org/book.html#mapreduce.example
+// https://bighadoop.wordpress.com/2012/07/06/hbase-and-hadoop/
 // https://mvnrepository.com/artifact/org.apache.hbase/hbase
+//
+// Don't forget to hbase shell
+// create 'countResult', 'nbk'
+//
+
 @Grapes([
   // @GrabResolver(name='mvnRepository', root='http://central.maven.org/maven2/'),
   @Grab(group='org.apache.hbase', module='hbase-client', version='1.2.1'),
@@ -53,6 +61,7 @@ import org.apache.hadoop.hbase.client.*
 import org.apache.hadoop.mapreduce.*
 import org.apache.hadoop.mapreduce.Mapper.Context
 
+
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
 job.setJarByClass(mr1.class);     // class that contains mapper and reducer
@@ -70,12 +79,13 @@ TableMapReduceUtil.initTableMapperJob(
   IntWritable.class,  // mapper output value
   job);
 
-TableMapReduceUtil.initTableReducerJob(
-  'countResult',        // output table
-  MyTableReducer.class,    // reducer class
-  ImmutableBytesWritable.class,
-  IntWritable.class,
-  job);
+org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job, new org.apache.hadoop.fs.Path("/tmp/mySummaryFile"));
+job.setReducerClass(SimpleReducer.class);
+
+// TableMapReduceUtil.initTableReducerJob(
+//   'countResult',        // output table
+//    MyTableReducer.class,    // reducer class
+//    job);
 
 job.setNumReduceTasks(1);   // at least one, adjust as required
 
@@ -85,36 +95,56 @@ if (!b) {
 }
 
 
+// <KEYOUT>,<VALUEOUT>
 public class MyMapper extends TableMapper<Text, IntWritable>  {
 
   private final IntWritable ONE = new IntWritable(1);
-     private Text text = new Text();
 
-     public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
+  private Text text = new Text();
+
+  @Override
+  public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
        // Get sourceRecord.raw -- which should be a marcxml record in this case
        byte[] val_bytes = value.getValue(Bytes.toBytes('nbk'), Bytes.toBytes('raw'))
        if ( val_bytes ) {
-         String val = new String(val_bytes)
+         String val = new String('asterisk')
+         // Emit "asterisk", 1 for every input record
          text.set(val);     // we can only emit Writables...
          context.write(text, ONE);
        }
        else {
          println("val_bytes null");
        }
-     }
+  }
 }
 
-public class MyTableReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
+// public class MyTableReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
+// <KEYIN>,<VALUEIN>,<KEYOUT>
+public class MyTableReducer extends org.apache.hadoop.hbase.mapreduce.TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
 
    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+
+      println("\n\n**Reduce**\n\n");
+
         int i = 0;
+        // Gather all the 'asterisk' values and count up each "1"
         for (IntWritable val : values) {
           i += val.get();
         }
         Put put = new Put(Bytes.toBytes(key.toString()));
-        put.add(Bytes.toBytes('cf'), Bytes.toBytes('count'), Bytes.toBytes(i));
+        put.add(Bytes.toBytes('nbk'), Bytes.toBytes('count'), Bytes.toBytes(i));
 
         context.write(null, put);
      }
 }
 
+public class SimpleReducer extends Reducer<Text, IntWritable, Text, IntWritable>  {
+
+  public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+    int i = 0;
+    for (IntWritable val : values) {
+      i += val.get();
+    }
+    context.write(key, new IntWritable(i));
+  }
+}

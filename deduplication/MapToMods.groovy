@@ -74,8 +74,8 @@ TableMapReduceUtil.initTableMapperJob(
   job);
 
 TableMapReduceUtil.initTableReducerJob(
-  'countResult',        // output table
-  MyTableReducer.class,    // reducer class
+  'inputRecord',        // output table
+  null,                 // NO reducer
   job);
 
 job.setNumReduceTasks(1);   // at least one, adjust as required
@@ -86,7 +86,7 @@ if (!b) {
 }
 
 
-public class MapToModsMapper extends TableMapper<Text, IntWritable>  {
+public class MapToModsMapper extends TableMapper<Text, Put>  {
 
   private static final String MARCXML2MODS_XSLT="http://www.loc.gov/standards/mods/v3/MARC21slim2MODS3.xsl";
 
@@ -97,28 +97,7 @@ public class MapToModsMapper extends TableMapper<Text, IntWritable>  {
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
        // Get sourceRecord.raw -- which should be a marcxml record in this case
        byte[] val_bytes = value.getValue(Bytes.toBytes('nbk'), Bytes.toBytes('raw'))
-       if ( val_bytes ) {
-         String val = new String(val_bytes)
-         text.set(val);     // we can only emit Writables...
-         context.write(text, ONE);
-       }
-       else {
-         println("val_bytes null");
-       }
+
+       // Split the input into source records, and put the new inputRecord
   }
 }
-
-public class MyTableReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
-
-   public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-        int i = 0;
-        for (IntWritable val : values) {
-          i += val.get();
-        }
-        Put put = new Put(Bytes.toBytes(key.toString()));
-        put.add(Bytes.toBytes('cf'), Bytes.toBytes('count'), Bytes.toBytes(i));
-
-        context.write(null, put);
-     }
-}
-
