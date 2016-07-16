@@ -1,6 +1,9 @@
 #!groovy
 
 
+// Final hint in getting this going came from 
+// http://stackoverflow.com/questions/8542324/type-mismatch-in-key-from-map-expected-text-received-longwritable
+
 // https://mvnrepository.com/artifact/org.apache.hbase/hbase
 @Grapes([
   // @GrabResolver(name='mvnRepository', root='http://central.maven.org/maven2/'),
