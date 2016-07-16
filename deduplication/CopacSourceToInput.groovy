@@ -131,6 +131,8 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
       // Instance hash adds edition for books
       def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), m.classification?.edition?.text(), discriminator]));
 
+      // We need to add the copac synthetic record header in here so we can do post-processing analysis to see how well we deduplicate
+
       context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
                     getContributorRecord(new_record_uuid, atomic_record, 'mods', title_hash_str, title_hash, work_hash, instance_hash));
     }
