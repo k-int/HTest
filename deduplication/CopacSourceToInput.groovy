@@ -1,5 +1,7 @@
 #!groovy
 
+// This Mapper takes raw copac records and extracts the original source components so we can compare our
+// deduplication with the local
 
 // Final hint in getting this going came from 
 // http://stackoverflow.com/questions/8542324/type-mismatch-in-key-from-map-expected-text-received-longwritable
@@ -45,7 +47,7 @@ import org.apache.hadoop.mapred.lib.NullOutputFormat
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
-job.setJarByClass(MapToMods.class);     // class that contains mapper and reducer -- for the groovy scriplet -- this
+job.setJarByClass(CopacSourceToInput.class);     // class that contains mapper and reducer -- for the groovy scriplet -- this
 
 // Scan scan = new Scan();
 // In this version, we only process 1 row
@@ -103,17 +105,28 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
     // Take each mods/extension/modsCollection and create a new record
     //
 
-    parsed_xml.extension.modsCollection.each { m ->
+    parsed_xml.extension.modsCollection.mods.each { m ->
       // Generate single records
       StringWriter sw = new StringWriter()
       XmlUtil xmlUtil = new XmlUtil()
       xmlUtil.serialize(m, sw)
       def atomic_record=sw.toString();
-      context.write(row, resultToPut(row,value));
+      def new_record_uuid = UUID.randomUUID().toString()
+
+      context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
+                    getContributorRecord(new_record_uuid, atomic_record, 'mods', null, null));
     }
 
 
   }
+
+  private static Put getContributorRecord(String contributor_record_id, String contributor_record, String recsyn, String work_hash, String instance_hash) throws IOException {
+    Put put = new Put(Bytes.toBytes(contributor_record_id));
+    put.add( Bytes.toBytes("nbk"), Bytes.toBytes("raw"), Bytes.toBytes(contributor_record) )
+    put.add( Bytes.toBytes("nbk"), Bytes.toBytes("recsyn"), Bytes.toBytes(recsyn) )
+    return put;
+  }
+
 
   private static Put resultToPut(ImmutableBytesWritable key, Result result) throws IOException {
     Put put = new Put(key.get());
