@@ -108,7 +108,7 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
   @Override
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
 
-    String copac_record_id_bytes = null;
+    String copac_record_id = null;
     String work_hash = null;
 
     byte[] copac_record_id_bytes = value.getValue(NBK_FAMILY, COPAC_RECORD_ID_COL)
@@ -205,7 +205,7 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
 
 }
 
-public static class MyReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable>  {
+public class MyReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable>  {
 
 
  	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -222,7 +222,7 @@ public static class MyReducer extends Reducer<IntWritable, IntWritable, IntWrita
 }
 
 // Turn a list of copac-record-id, work hash into a sum of the number of unique work hashes and a 1 after that - so if there are 2, return 2,1 -- so we can count up the total
-public static class MyCombiner extends Reducer<ImmutableBytesWritable, ImmutableBytesWritable, IntWritable, IntWritable>  {
+public class MyCombiner extends Reducer<ImmutableBytesWritable, ImmutableBytesWritable, IntWritable, IntWritable>  {
 
         private final IntWritable ONE = new IntWritable(1);
 
