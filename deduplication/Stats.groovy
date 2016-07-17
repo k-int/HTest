@@ -70,7 +70,7 @@ scan.setCacheBlocks(false);  // don't set to true for MR jobs
 TableMapReduceUtil.initTableMapperJob(
   'sourceRecord',        // input table
   scan,               // Scan instance to control CF and attribute selection
-  MapToModsMapper.class,     // mapper class
+  InputRecordsMapper.class,     // mapper class
   ImmutableBytesWritable.class,
   ImmutableBytesWritable.class,
   job);
@@ -95,7 +95,7 @@ if (!b) {
 
 
 // <KEYOUT>,<VALUEOUT>
-public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
+public class InputRecordsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
 
   private static final String MARCXML2MODS_XSLT="http://www.loc.gov/standards/mods/v3/MARC21slim2MODS3.xsl";
   public static List STOPWORDS = []
@@ -106,7 +106,9 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
   public static byte[] WORK_HASH_ID_COL = Bytes.toBytes('work_hash')
 
   @Override
-  public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
+  public void map(ImmutableBytesWritable row, 
+                  Result value, 
+                  Context context) throws IOException, InterruptedException {
 
     String copac_record_id = null;
     String work_hash = null;
@@ -116,7 +118,7 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
     byte[] work_hash_bytes = value.getValue(NBK_FAMILY, WORK_HASH_ID_COL)
     if ( work_hash_bytes ) work_hash = new String(work_hash_bytes);
 
-    context.write(copac_record_id, work_hash);
+    context.write(new ImmutableBytesWritable((byte[])copac_record_id_bytes), new ImmutableBytesWritable((byte[])work_hash_bytes));
   }
 
   private static Put getContributorRecord(String contributor_record_id, 
@@ -231,7 +233,7 @@ public class MyCombiner extends Reducer<ImmutableBytesWritable, ImmutableBytesWr
                 int i = 0;
                 def unique_work_ids = []
                 for (ImmutableBytesWritable val : values) {
-                  String v = new String(v);
+                  String v = new String(val.get());
                   if (unique_work_ids.contains( v ) ) {
                   }
                   else {
