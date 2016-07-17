@@ -52,7 +52,7 @@ import java.text.Normalizer
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
-job.setJarByClass(CopacSourceToInput.class);     // class that contains mapper and reducer -- for the groovy scriplet -- this
+job.setJarByClass(Stats.class);     // class that contains mapper and reducer -- for the groovy scriplet -- this
 
 Scan scan = new Scan();
 // In this version, we only process 1 row
@@ -71,22 +71,22 @@ TableMapReduceUtil.initTableMapperJob(
   'sourceRecord',        // input table
   scan,               // Scan instance to control CF and attribute selection
   MapToModsMapper.class,     // mapper class
-  null,
-  null,
-  job);
-
-TableMapReduceUtil.initTableReducerJob(
-  'inputRecord',        // output table
-  null,                 // NO reducer
+  ImmutableBytesWritable.class,
+  ImmutableBytesWritable.class,
   job);
 
 job.setMapOutputKeyClass(ImmutableBytesWritable.class);
-job.setMapOutputValueClass(Put.class);
-
+job.setMapOutputValueClass(ImmutableBytesWritable.class);
+job.setCombinerClass(MyCombiner.class);
 // job.setMapperClass(MapToModsMapper.class);
-// job.setReducerClass(PrimeNumberReduce.class);
+job.setReducerClass(MyReducer.class);
 job.setNumReduceTasks(1);   // at least one, adjust as required
 // job.setOutputFormatClass(NullOutputFormat.class);
+
+job.setOutputKeyClass(IntWritable.class);
+job.setOutputValueClass(IntWritable.class);
+		
+org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job, new org.apache.hadoop.fs.Path("/tmp/copacStats"));
 
 boolean b = job.waitForCompletion(true);
 if (!b) {
@@ -102,64 +102,25 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
   public static byte[] NBK_FAMILY = Bytes.toBytes('nbk');
   public static byte[] SYN_COL = Bytes.toBytes('recsyn')
   public static byte[] SRC_COL = Bytes.toBytes('sourceid')
+  public static byte[] COPAC_RECORD_ID_COL = Bytes.toBytes('copac_record_id')
+  public static byte[] WORK_HASH_ID_COL = Bytes.toBytes('work_hash')
 
   @Override
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
 
-    String recsyn = null;
-    String recsrc = null;
+    String copac_record_id_bytes = null;
+    String work_hash = null;
 
-    byte[] syn_bytes = value.getValue(NBK_FAMILY, SYN_COL)
-    if ( syn_bytes ) recsyn = new String(syn_bytes);
-    byte[] src_bytes = value.getValue(NBK_FAMILY, SRC_COL)
-    if ( src_bytes ) recsrc = new String(src_bytes);
+    byte[] copac_record_id_bytes = value.getValue(NBK_FAMILY, COPAC_RECORD_ID_COL)
+    if ( copac_record_id_bytes ) copac_record_id = new String(copac_record_id_bytes);
+    byte[] work_hash_bytes = value.getValue(NBK_FAMILY, WORK_HASH_ID_COL)
+    if ( work_hash_bytes ) work_hash = new String(work_hash_bytes);
 
-    if ( (recsyn?.equals('mods') ) && ( recsrc?.equals('copac') ) )  {
-
-      // this example is just copying the data from the source table...
-      // We take the input value, parse it and extract and source records
-      // raw record is in nbk:raw
-      String record_xml_as_text = new String(value.getValue(Bytes.toBytes('nbk'), Bytes.toBytes('raw')));
-      def parsed_xml = new XmlSlurper().parseText(record_xml_as_text)
-
-
-      String synthetic_record_id = parsed_xml.recordInfo.recordIdentifier.text()
-
-      //
-      // Take each mods/extension/modsCollection and create a new record
-      //
-  
-      parsed_xml.extension.modsCollection.mods.each { m ->
-        // Generate single records
-        StringWriter sw = new StringWriter()
-        XmlUtil xmlUtil = new XmlUtil()
-        xmlUtil.serialize(m, sw)
-        def atomic_record=sw.toString();
-        def new_record_uuid = UUID.randomUUID().toString()
-  
-        // The knowledgebase ruleset consulted at ingest time may indicate this item needs a discriminator
-        def discriminator = null;
-  
-        def title_hash_str = normalise(['BKM',m.titleInfo.title?.text(), m.titleInfo.subTitle?.text(), discriminator]);
-        def title_hash = getBucket(title_hash_str);
-  
-        // Work hash has name parts also
-        def work_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), discriminator]));
-  
-        // Instance hash adds edition for books
-        def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), m.classification?.edition?.text(), discriminator]));
-  
-        // We need to add the copac synthetic record header in here so we can do post-processing analysis to see how well we deduplicate
-  
-        context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
-                      getContributorRecord(new_record_uuid, atomic_record, synthetic_record_id, 'mods', title_hash_str, title_hash, work_hash, instance_hash));
-      }
-    }
+    context.write(copac_record_id, work_hash);
   }
 
   private static Put getContributorRecord(String contributor_record_id, 
                                           String contributor_record, 
-                                          String copac_synthetic_record_id,
                                           String recsyn, 
                                           String title_hash_str, 
                                           String title_hash, 
@@ -181,9 +142,6 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
 
     if ( instance_hash ) 
       put.add( Bytes.toBytes("nbk"), Bytes.toBytes("instance_hash"), Bytes.toBytes(instance_hash) )
-
-    if ( copac_synthetic_record_id)
-      put.add( Bytes.toBytes("nbk"), Bytes.toBytes("copac_record_id"), Bytes.toBytes(copac_synthetic_record_id) )
 
     return put;
   }
@@ -246,3 +204,44 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
   }
 
 }
+
+public static class MyReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable>  {
+
+
+ 	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+           IntWritable result = new IntWritable();
+           int i = 0;
+           // Gather all the 'asterisk' values and count up each "1"
+           for (IntWritable val : values) {
+                i += val.get();
+           }
+
+           result.set(i)
+           context.write(key, result);
+   	}
+}
+
+// Turn a list of copac-record-id, work hash into a sum of the number of unique work hashes and a 1 after that - so if there are 2, return 2,1 -- so we can count up the total
+public static class MyCombiner extends Reducer<ImmutableBytesWritable, ImmutableBytesWritable, IntWritable, IntWritable>  {
+
+        private final IntWritable ONE = new IntWritable(1);
+
+        public void reduce(ImmutableBytesWritable key, Iterable<ImmutableBytesWritable> values, Context context) throws IOException, InterruptedException {
+                IntWritable result = new IntWritable();
+                int i = 0;
+                def unique_work_ids = []
+                for (ImmutableBytesWritable val : values) {
+                  String v = new String(v);
+                  if (unique_work_ids.contains( v ) ) {
+                  }
+                  else {
+                    unique_work_ids.add(v);
+                  }
+                }
+
+                result.set(unique_work_ids.size())
+                context.write(result, ONE);
+        }
+}
+
+
