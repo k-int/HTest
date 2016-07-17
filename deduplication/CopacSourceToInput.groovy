@@ -54,12 +54,12 @@ Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'ExampleSummary');
 job.setJarByClass(CopacSourceToInput.class);     // class that contains mapper and reducer -- for the groovy scriplet -- this
 
-// Scan scan = new Scan();
+Scan scan = new Scan();
 // In this version, we only process 1 row
 // Try a hathitrust record
 // Scan scan = new Scan(Bytes.toBytes('oai:quod.lib.umich.edu:MIU01-003496759'), Bytes.toBytes('oai:quod.lib.umich.edu:MIU01-003496759'));
 // try a copac record
-Scan scan = new Scan(Bytes.toBytes('1200'), Bytes.toBytes('1200'));
+// Scan scan = new Scan(Bytes.toBytes('1200'), Bytes.toBytes('1200'));
 
 
 scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
@@ -99,45 +99,57 @@ public class MapToModsMapper extends TableMapper<ImmutableBytesWritable, Put>  {
 
   private static final String MARCXML2MODS_XSLT="http://www.loc.gov/standards/mods/v3/MARC21slim2MODS3.xsl";
   public static List STOPWORDS = []
+  public static byte[] NBK_FAMILY = Bytes.toBytes('nbk');
+  public static byte[] SYN_COL = Bytes.toBytes('recsyn')
+  public static byte[] SRC_COL = Bytes.toBytes('sourceid')
 
   @Override
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-    // this example is just copying the data from the source table...
-    // We take the input value, parse it and extract and source records
-    // raw record is in nbk:raw
-    String record_xml_as_text = new String(value.getValue(Bytes.toBytes("nbk"), Bytes.toBytes("raw")));
-    def parsed_xml = new XmlSlurper().parseText(record_xml_as_text)
-    //
-    // Take each mods/extension/modsCollection and create a new record
-    //
 
-    parsed_xml.extension.modsCollection.mods.each { m ->
-      // Generate single records
-      StringWriter sw = new StringWriter()
-      XmlUtil xmlUtil = new XmlUtil()
-      xmlUtil.serialize(m, sw)
-      def atomic_record=sw.toString();
-      def new_record_uuid = UUID.randomUUID().toString()
+    String recsyn = null;
+    String recsrc = null;
 
-      // The knowledgebase ruleset consulted at ingest time may indicate this item needs a discriminator
-      def discriminator = null;
+    byte[] syn_bytes = value.getValue(NBK_FAMILY, SYN_COL)
+    if ( syn_bytes ) recsyn = new String(syn_bytes);
+    byte[] src_bytes = value.getValue(NBK_FAMILY, SRC_COL)
+    if ( src_bytes ) recsrc = new String(src_bytes);
 
-      def title_hash_str = normalise(['BKM',m.titleInfo.title?.text(), m.titleInfo.subTitle?.text(), discriminator]);
-      def title_hash = getBucket(title_hash_str);
-
-      // Work hash has name parts also
-      def work_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), discriminator]));
-
-      // Instance hash adds edition for books
-      def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), m.classification?.edition?.text(), discriminator]));
-
-      // We need to add the copac synthetic record header in here so we can do post-processing analysis to see how well we deduplicate
-
-      context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
-                    getContributorRecord(new_record_uuid, atomic_record, 'mods', title_hash_str, title_hash, work_hash, instance_hash));
+    if ( (recsyn?.equals('mods') ) && ( recsrc?.equals('copac') ) )  {
+      // this example is just copying the data from the source table...
+      // We take the input value, parse it and extract and source records
+      // raw record is in nbk:raw
+      String record_xml_as_text = new String(value.getValue(Bytes.toBytes('nbk'), Bytes.toBytes('raw')));
+      def parsed_xml = new XmlSlurper().parseText(record_xml_as_text)
+      //
+      // Take each mods/extension/modsCollection and create a new record
+      //
+  
+      parsed_xml.extension.modsCollection.mods.each { m ->
+        // Generate single records
+        StringWriter sw = new StringWriter()
+        XmlUtil xmlUtil = new XmlUtil()
+        xmlUtil.serialize(m, sw)
+        def atomic_record=sw.toString();
+        def new_record_uuid = UUID.randomUUID().toString()
+  
+        // The knowledgebase ruleset consulted at ingest time may indicate this item needs a discriminator
+        def discriminator = null;
+  
+        def title_hash_str = normalise(['BKM',m.titleInfo.title?.text(), m.titleInfo.subTitle?.text(), discriminator]);
+        def title_hash = getBucket(title_hash_str);
+  
+        // Work hash has name parts also
+        def work_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), discriminator]));
+  
+        // Instance hash adds edition for books
+        def instance_hash = getBucket(normalise(['BKM',m.titleInfo.title.text(), m.titleInfo.subTitle?.text(), m.classification?.edition?.text(), discriminator]));
+  
+        // We need to add the copac synthetic record header in here so we can do post-processing analysis to see how well we deduplicate
+  
+        context.write(new ImmutableBytesWritable(new_record_uuid.getBytes()), 
+                      getContributorRecord(new_record_uuid, atomic_record, 'mods', title_hash_str, title_hash, work_hash, instance_hash));
+      }
     }
-
-
   }
 
   private static Put getContributorRecord(String contributor_record_id, 

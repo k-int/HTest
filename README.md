@@ -19,6 +19,7 @@ disable 'inputRecord'
 drop 'inputRecord'
 create 'inputRecord', 'nbk'
 scan 'inputRecord' , {COLUMNS => [ 'nbk:title_hash_str', 'nbk:title_hash']}
+scan 'inputRecord' , {LIMIT => 2}
 
 
 
