@@ -118,7 +118,9 @@ public class InputRecordsMapper extends TableMapper<ImmutableBytesWritable, Put>
     byte[] work_hash_bytes = value.getValue(NBK_FAMILY, WORK_HASH_ID_COL)
     if ( work_hash_bytes ) work_hash = new String(work_hash_bytes);
 
-    context.write(new ImmutableBytesWritable((byte[])copac_record_id_bytes), new ImmutableBytesWritable((byte[])work_hash_bytes));
+    if ( copac_record_id_bytes && work_hash_bytes ) {
+      context.write(new ImmutableBytesWritable((byte[])copac_record_id_bytes), new ImmutableBytesWritable((byte[])work_hash_bytes));
+    }
   }
 
   private static Put getContributorRecord(String contributor_record_id, 
