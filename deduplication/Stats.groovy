@@ -68,7 +68,7 @@ scan.setCacheBlocks(false);  // don't set to true for MR jobs
 
 
 TableMapReduceUtil.initTableMapperJob(
-  'sourceRecord',        // input table
+  'inputRecord',        // input table
   scan,               // Scan instance to control CF and attribute selection
   InputRecordsMapper.class,     // mapper class
   ImmutableBytesWritable.class,
@@ -103,7 +103,7 @@ public class InputRecordsMapper extends TableMapper<ImmutableBytesWritable, Put>
   public static byte[] SYN_COL = Bytes.toBytes('recsyn')
   public static byte[] SRC_COL = Bytes.toBytes('sourceid')
   public static byte[] COPAC_RECORD_ID_COL = Bytes.toBytes('copac_record_id')
-  public static byte[] WORK_HASH_ID_COL = Bytes.toBytes('work_hash')
+  public static byte[] WORK_HASH_COL = Bytes.toBytes('work_hash')
 
   @Override
   public void map(ImmutableBytesWritable row, 
@@ -114,9 +114,7 @@ public class InputRecordsMapper extends TableMapper<ImmutableBytesWritable, Put>
     String work_hash = null;
 
     byte[] copac_record_id_bytes = value.getValue(NBK_FAMILY, COPAC_RECORD_ID_COL)
-    if ( copac_record_id_bytes ) copac_record_id = new String(copac_record_id_bytes);
-    byte[] work_hash_bytes = value.getValue(NBK_FAMILY, WORK_HASH_ID_COL)
-    if ( work_hash_bytes ) work_hash = new String(work_hash_bytes);
+    byte[] work_hash_bytes = value.getValue(NBK_FAMILY, WORK_HASH_COL)
 
     if ( copac_record_id_bytes && work_hash_bytes ) {
       context.write(new ImmutableBytesWritable((byte[])copac_record_id_bytes), new ImmutableBytesWritable((byte[])work_hash_bytes));
