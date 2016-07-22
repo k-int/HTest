@@ -3,7 +3,6 @@
 
 // https://mvnrepository.com/artifact/org.apache.hbase/hbase
 @Grapes([
-  // @GrabResolver(name='mvnRepository', root='http://central.maven.org/maven2/'),
   @Grab(group='org.apache.hbase', module='hbase-client', version='1.2.1'),
   @Grab(group='org.apache.hbase', module='hbase-common', version='1.2.1'),
   @Grab(group='org.apache.hadoop', module='hadoop-common', version='2.7.2'),
@@ -131,7 +130,7 @@ def pullLatest(config, cfg_file) {
       addRecord(record_id_str, 'mods', mods_xml_record, htable);
     }
 
-    if ( bad_seq > 1500 )
+    if ( bad_seq > 15000 )
       break
 
     if ( i % throttle_counter == 0 ) {
@@ -168,9 +167,12 @@ def getRecord(recno, config, cfg_file) {
 
   http.request( GET, XML ) { req ->
 
+
     uri.path = "/id/${recno}"
     uri.query = qry 
     contentType=XML
+
+    headers.'User-Agent' = 'www.k-int.com dedup NFR test platform data collection script';
 
     // response handler for a success response code:
     response.success = { resp, xml ->

@@ -1,0 +1,422 @@
+<mods version="3.5" xmlns="http://www.loc.gov/mods/v3" xmlns:h="http://copac.ac.uk/schemas/holdings/v1" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<recordInfo>
+		<recordIdentifier source="UkMaC">1200</recordIdentifier>
+		<recordCreationDate encoding="iso8601">20160329</recordCreationDate>
+	</recordInfo>
+	<typeOfResource>text</typeOfResource>
+	<originInfo>
+		<issuance>single unit</issuance>
+	</originInfo>
+	<originInfo>
+		<dateIssued encoding="marc">1954</dateIssued>
+		<place>
+			<placeTerm authority="marccountry" type="code">un </placeTerm>
+		</place>
+	</originInfo>
+	<identifier type="lccn">   55057514</identifier>
+	<subject authority="marcgac">
+		<geographicCode>e-un---</geographicCode>
+	</subject>
+	<classification authority="lcc">PG3814 .A5</classification>
+	<name type="corporate">
+		<namePart>Instytut movoznavstva im. O.O. Potebni.</namePart>
+		<role>
+			<roleTerm type="text">creator</roleTerm>
+		</role>
+	</name>
+	<titleInfo>
+		<title>Poltavsʹko-kyïvsʹkyĭ dialekt--osnova ukraïnsʹkoï natsionalʹnoï movy</title>
+		<subTitle>zbirnyk stateĭ</subTitle>
+	</titleInfo>
+	<note type="statement of responsibility">[redaktsiĭna kolehii͡a: L.A. Bulakhovsʹkiĭ (holovnyĭ redaktor) ta inshi.].</note>
+	<originInfo eventType="publisher">
+		<place>
+			<placeTerm type="text">Kyïv</placeTerm>
+		</place>
+		<publisher>Vyd-vo Akademiï nauk Ukr. RSR</publisher>
+		<dateIssued>1954</dateIssued>
+	</originInfo>
+	<physicalDescription>
+		<extent>223 p. ; 23 cm.</extent>
+	</physicalDescription>
+	<note type="bibliography">Includes bibliographical references.</note>
+	<subject authority="lcsh">
+		<topic>Ukrainian language.</topic>
+	</subject>
+	<subject authority="lcsh">
+		<topic>Ukrainian language</topic>
+		<topic>Dialects</topic>
+		<geographic>Ukraine</geographic>
+		<geographic>Poltava.</geographic>
+	</subject>
+	<subject authority="lcsh">
+		<topic>Ukrainian language</topic>
+		<topic>Dialects</topic>
+		<geographic>Ukraine</geographic>
+		<geographic>Kiev.</geographic>
+	</subject>
+	<subject authority="lcsh">
+		<topic>Ukrainian language</topic>
+		<topic>Dialects</topic>
+		<geographic>Ukraine</geographic>
+		<geographic>Kiev (Oblast)</geographic>
+	</subject>
+	<subject authority="lcsh">
+		<topic>Ukrainian language</topic>
+		<topic>History.</topic>
+	</subject>
+	<subject authority="lcsh">
+		<topic>Ukrainian language</topic>
+		<topic>Dialects.</topic>
+	</subject>
+	<name type="personal">
+		<namePart>Bulakhovskiĭ, Leonid Arsenʹevich</namePart>
+		<namePart type="date">1888-1961.</namePart>
+	</name>
+	<name type="corporate">
+		<namePart>Instytut movoznavstva im. O.O. Potebni.</namePart>
+	</name>
+	<extension>
+		<modsCollection>
+			<mods version="3.5">
+				<recordInfo>
+					<recordIdentifier source="UkMaC">18602709</recordIdentifier>
+					<recordIdentifier source="UkCU">2063890</recordIdentifier>
+					<recordCreationDate encoding="iso8601">20160329</recordCreationDate>
+				</recordInfo>
+				<typeOfResource>text</typeOfResource>
+				<originInfo>
+					<issuance>multipart monograph</issuance>
+				</originInfo>
+				<recordInfo>
+					<descriptionStandard>aacr</descriptionStandard>
+				</recordInfo>
+				<originInfo>
+					<dateIssued encoding="marc">1954</dateIssued>
+					<place>
+						<placeTerm authority="marccountry" type="code">un </placeTerm>
+					</place>
+				</originInfo>
+				<titleInfo>
+					<title>Poltavsʹko-kyïvsʹkyĭ dialekt-osnova ukraïnsʹkoï nat︠s︡ionalʹnoï movy</title>
+					<subTitle>zbirnyk stateĭ</subTitle>
+				</titleInfo>
+				<note type="statement of responsibility">[red. kolegii︠a︡ L.A.Bulakhovsʹkyĭ ... et al.].</note>
+				<originInfo eventType="publisher">
+					<place>
+						<placeTerm type="text">Kyïv</placeTerm>
+					</place>
+					<dateIssued>1954</dateIssued>
+				</originInfo>
+				<physicalDescription>
+					<extent>23cm.</extent>
+				</physicalDescription>
+				<note type="general">At head of title: Akad. Nauk Ukraïnsʹkoĭ RSR, Inst. Movoznavstva im O.O. Potebni.</note>
+				<subject authority="lcsh">
+					<topic>Ukrainian language</topic>
+					<topic>Dialects.</topic>
+				</subject>
+				<name type="personal">
+					<namePart>Bulakhovskiĭ, Leonid Arsenʹevich</namePart>
+					<namePart type="date">1888-1961.</namePart>
+				</name>
+				<name type="corporate">
+					<namePart>Nat︠s︡ionalʹna akademii︠a︡ nauk Ukraïny. Instytut movoznavstva.</namePart>
+				</name>
+				<language>
+					<languageTerm authority="iso639-2b" type="code">ukr</languageTerm>
+					<languageTerm type="text">Ukrainian</languageTerm>
+				</language>
+				<location>
+					<holdingExternal>
+						<h:localHolds>
+							<h:org coords="52.205105,0.107755" copacCode="cam" displayName="University of Cambridge Libraries" postcode="CB3 9DR">UkCU</h:org>
+							<h:objId>18602709</h:objId>
+							<h:holds>
+								<h:item>
+									<h:loc coords="52.205105,0.107755" heldBy="University of Cambridge Libraries" heldByShortName="Cambridge University" location="Cambridge University Library" postcode="CB3 9DR" subLocation="University Library: North Wing, Floor 6">3fNW6</h:loc>
+									<h:shelfmark>777.c.95.49</h:shelfmark>
+								</h:item>
+							</h:holds>
+						</h:localHolds>
+					</holdingExternal>
+				</location>
+				<extension>
+					<cpc:flags xmlns:cpc="http://copac.ac.uk/schemas/mods-copac/v1">
+						<cpc:flag>copbok</cpc:flag>
+						<cpc:flag>coppri</cpc:flag>
+						<cpc:flag>m21bk</cpc:flag>
+						<cpc:flag>rtypa</cpc:flag>
+					</cpc:flags>
+				</extension>
+			</mods>
+			<mods version="3.5">
+				<recordInfo>
+					<recordIdentifier source="UkMaC">103679137</recordIdentifier>
+					<recordIdentifier source="StEdU">992216593502466</recordIdentifier>
+					<recordCreationDate encoding="iso8601">20160329</recordCreationDate>
+				</recordInfo>
+				<typeOfResource>text</typeOfResource>
+				<originInfo>
+					<issuance>single unit</issuance>
+				</originInfo>
+				<originInfo>
+					<dateIssued encoding="marc">1954</dateIssued>
+					<place>
+						<placeTerm authority="marccountry" type="code">un </placeTerm>
+					</place>
+				</originInfo>
+				<titleInfo>
+					<title>Poltavsʹko-kyivsʹkyĭ dialekt</title>
+					<subTitle>osnova ukrainsʹkoi natsionalʹnoi movy ; zbirnyk stateĭ.</subTitle>
+				</titleInfo>
+				<originInfo eventType="publisher">
+					<place>
+						<placeTerm type="text">Kyiv</placeTerm>
+					</place>
+					<dateIssued>1954</dateIssued>
+				</originInfo>
+				<name type="personal">
+					<namePart>Bulakhovskiĭ, Leonid Arsenʹevich</namePart>
+					<namePart type="date">1888-1961.</namePart>
+				</name>
+				<physicalDescription>
+					<form authority="marcform">print</form>
+					<form authority="rdamedia" type="media">unmediated</form>
+					<form authority="rdacarrier" type="carrier">volume</form>
+				</physicalDescription>
+				<genre authority="rdacontent">text</genre>
+				<language>
+					<languageTerm authority="iso639-2b" type="code">ukr</languageTerm>
+					<languageTerm type="text">Ukrainian</languageTerm>
+				</language>
+				<location>
+					<holdingExternal>
+						<h:localHolds>
+							<h:org coords="55.942828,-3.189332" copacCode="edi" displayName="University of Edinburgh Libraries" postcode="EH8 9LJ">StEdU</h:org>
+							<h:objId>103679137</h:objId>
+							<h:holds>
+								<h:item>
+									<h:loc coords="55.942828,-3.189332" heldBy="University of Edinburgh Libraries" heldByShortName="Edinburgh University" location="Main Library" postcode="EH8 9LJ" subLocation="Main Library (STANDARD LOAN) - 4th floor">MAIN MAIN-GEN4</h:loc>
+									<h:shelfmark>49179 Bul</h:shelfmark>
+								</h:item>
+							</h:holds>
+						</h:localHolds>
+					</holdingExternal>
+				</location>
+				<extension>
+					<cpc:flags xmlns:cpc="http://copac.ac.uk/schemas/mods-copac/v1">
+						<cpc:flag>copbok</cpc:flag>
+						<cpc:flag>coppri</cpc:flag>
+						<cpc:flag>m21bk</cpc:flag>
+						<cpc:flag>rtypa</cpc:flag>
+					</cpc:flags>
+				</extension>
+			</mods>
+			<mods version="3.5">
+				<recordInfo>
+					<recordIdentifier source="UkMaC">68505390</recordIdentifier>
+					<recordIdentifier source="UkOxU">013478366</recordIdentifier>
+					<recordCreationDate encoding="iso8601">20160329</recordCreationDate>
+				</recordInfo>
+				<typeOfResource>text</typeOfResource>
+				<originInfo>
+					<issuance>single unit</issuance>
+				</originInfo>
+				<recordInfo>
+					<descriptionStandard>aacr</descriptionStandard>
+				</recordInfo>
+				<originInfo>
+					<dateIssued encoding="marc">1954</dateIssued>
+					<place>
+						<placeTerm authority="marccountry" type="code">un </placeTerm>
+					</place>
+				</originInfo>
+				<recordInfo>
+					<recordContentSource authority="marcorg">CSt</recordContentSource>
+				</recordInfo>
+				<titleInfo>
+					<title>Poltavsʹko-kyïvsʹkyĭ dialekt--osnova ukraïnsʹkoï nat͡sionalʹnoï movy</title>
+					<subTitle>zbirnyk stateĭ</subTitle>
+				</titleInfo>
+				<note type="statement of responsibility">red. kol. L.A. Bulakhovsʹkyĭ (hol. red.) ... [i dr.]</note>
+				<originInfo eventType="publisher">
+					<place>
+						<placeTerm type="text">Kyïv</placeTerm>
+					</place>
+					<publisher>Vyd-vo Akademiï nauk Ukraïnsʹkoï RSR</publisher>
+					<dateIssued>1954</dateIssued>
+				</originInfo>
+				<physicalDescription>
+					<extent>223 p. ; 23 cm.</extent>
+				</physicalDescription>
+				<note type="general">Errata slip inserted.</note>
+				<note type="bibliography">Includes bibliographical references.</note>
+				<subject authority="lcsh">
+					<topic>Ukrainian language</topic>
+					<topic>Dialects</topic>
+					<geographic>Ukraine</geographic>
+					<geographic>Poltava.</geographic>
+				</subject>
+				<subject authority="lcsh">
+					<topic>Ukrainian language</topic>
+					<topic>Dialects</topic>
+					<geographic>Ukraine</geographic>
+					<geographic>Kiev (Oblast)</geographic>
+				</subject>
+				<subject authority="lcsh">
+					<topic>Ukrainian language</topic>
+					<topic>History.</topic>
+				</subject>
+				<name type="personal">
+					<namePart>Bulakhovskiĭ, Leonid Arsenʹevich</namePart>
+					<namePart type="date">1888-1961.</namePart>
+				</name>
+				<name type="corporate">
+					<namePart>Instytut movoznavstva im. O.O. Potebni.</namePart>
+				</name>
+				<physicalDescription>
+					<form authority="marcform">print</form>
+				</physicalDescription>
+				<genre>Bibliography</genre>
+				<language>
+					<languageTerm authority="iso639-2b" type="code">ukr</languageTerm>
+					<languageTerm type="text">Ukrainian</languageTerm>
+				</language>
+				<location>
+					<holdingExternal>
+						<h:localHolds>
+							<h:org coords="51.754054,-1.254373" copacCode="oxf" displayName="University of Oxford Libraries" postcode="OX1 3BG">UkOxU</h:org>
+							<h:objId>68505390</h:objId>
+							<h:holds>
+								<h:item>
+									<h:loc coords="51.755387,-1.25956" heldBy="University of Oxford Libraries" heldByShortName="Oxford University" location="Taylor Bodleian Slavonic &amp; Modern Greek Library" postcode="OX1 2JF" subLocation="Taylor Slavonic Library">Taylor Slavonic Library</h:loc>
+									<h:shelfmark>PG3898.P7.P7</h:shelfmark>
+								</h:item>
+							</h:holds>
+						</h:localHolds>
+					</holdingExternal>
+				</location>
+				<extension>
+					<cpc:flags xmlns:cpc="http://copac.ac.uk/schemas/mods-copac/v1">
+						<cpc:flag>copbok</cpc:flag>
+						<cpc:flag>coppri</cpc:flag>
+						<cpc:flag>m21bk</cpc:flag>
+						<cpc:flag>rtypa</cpc:flag>
+					</cpc:flags>
+				</extension>
+			</mods>
+			<mods version="3.5">
+				<recordInfo>
+					<recordIdentifier source="UkMaC">82943142</recordIdentifier>
+					<recordIdentifier source="UkLUC">001840259</recordIdentifier>
+					<recordCreationDate encoding="iso8601">20160329</recordCreationDate>
+				</recordInfo>
+				<typeOfResource>text</typeOfResource>
+				<originInfo>
+					<issuance>single unit</issuance>
+				</originInfo>
+				<recordInfo>
+					<descriptionStandard>aacr</descriptionStandard>
+				</recordInfo>
+				<originInfo>
+					<dateIssued encoding="marc">1954</dateIssued>
+					<place>
+						<placeTerm authority="marccountry" type="code">un </placeTerm>
+					</place>
+				</originInfo>
+				<identifier type="lccn">   55057514</identifier>
+				<recordInfo>
+					<recordContentSource authority="marcorg">DLC</recordContentSource>
+					<languageOfCataloging>
+						<languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+					</languageOfCataloging>
+				</recordInfo>
+				<subject authority="marcgac">
+					<geographicCode>e-un---</geographicCode>
+				</subject>
+				<classification authority="lcc">PG3814 .A5</classification>
+				<name type="corporate">
+					<namePart>Instytut movoznavstva im. O.O. Potebni.</namePart>
+					<role>
+						<roleTerm type="text">creator</roleTerm>
+					</role>
+				</name>
+				<titleInfo>
+					<title>Poltavsʹko-kyïvsʹkyĭ dialekt--osnova ukraïnsʹkoï natsionalʹnoï movy</title>
+					<subTitle>zbirnyk stateĭ</subTitle>
+				</titleInfo>
+				<note type="statement of responsibility">[redaktsiĭna kolehii͡a: L.A. Bulakhovsʹkiĭ (holovnyĭ redaktor) ta inshi.].</note>
+				<originInfo eventType="publisher">
+					<place>
+						<placeTerm type="text">Kyïv</placeTerm>
+					</place>
+					<publisher>Vyd-vo Akademiï nauk Ukr. RSR</publisher>
+					<dateIssued>1954</dateIssued>
+				</originInfo>
+				<physicalDescription>
+					<extent>223 p. ; 23 cm.</extent>
+				</physicalDescription>
+				<subject authority="lcsh">
+					<topic>Ukrainian language.</topic>
+				</subject>
+				<subject authority="lcsh">
+					<topic>Ukrainian language</topic>
+					<topic>Dialects</topic>
+					<geographic>Ukraine</geographic>
+					<geographic>Poltava.</geographic>
+				</subject>
+				<subject authority="lcsh">
+					<topic>Ukrainian language</topic>
+					<topic>Dialects</topic>
+					<geographic>Ukraine</geographic>
+					<geographic>Kiev.</geographic>
+				</subject>
+				<name type="personal">
+					<namePart>Bulakhovskiĭ, Leonid Arsenʹevich</namePart>
+					<namePart type="date">1888-1961.</namePart>
+				</name>
+				<physicalDescription>
+					<form authority="marcform">print</form>
+				</physicalDescription>
+				<language>
+					<languageTerm authority="iso639-2b" type="code">ukr</languageTerm>
+					<languageTerm type="text">Ukrainian</languageTerm>
+				</language>
+				<location>
+					<holdingExternal>
+						<h:localHolds>
+							<h:org coords="51.524389,-0.134443" copacCode="ucl" displayName="University College London Library" postcode="WC1E 6BT">UkLUC</h:org>
+							<h:objId>82943142</h:objId>
+							<h:holds>
+								<h:item>
+									<h:loc coords="51.524389,-0.134443" heldBy="University College London Library" heldByShortName="University College London" location="UCL Main Library" postcode="WC1E 6BT" subLocation="Store. Visit UCL Library webpages to request access to items in Store">STORE</h:loc>
+									<h:shelfmark>SSDEP STORE 14-0728</h:shelfmark>
+									<h:note>Standard</h:note>
+								</h:item>
+							</h:holds>
+						</h:localHolds>
+					</holdingExternal>
+				</location>
+				<extension>
+					<cpc:flags xmlns:cpc="http://copac.ac.uk/schemas/mods-copac/v1">
+						<cpc:flag>copbok</cpc:flag>
+						<cpc:flag>coppri</cpc:flag>
+						<cpc:flag>m21bk</cpc:flag>
+						<cpc:flag>rtypa</cpc:flag>
+					</cpc:flags>
+				</extension>
+			</mods>
+		</modsCollection>
+	</extension>
+	<physicalDescription>
+		<form authority="marcform">print</form>
+		<form authority="rdamedia" type="media">unmediated</form>
+		<form authority="rdacarrier" type="carrier">volume</form>
+	</physicalDescription>
+	<genre authority="rdacontent">text</genre>
+	<language>
+		<languageTerm authority="iso639-2b" type="code">ukr</languageTerm>
+		<languageTerm type="text">Ukrainian</languageTerm>
+	</language>
+</mods>
