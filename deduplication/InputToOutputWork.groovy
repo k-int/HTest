@@ -154,8 +154,9 @@ public class MapInputToOutputMapper extends TableMapper<ImmutableBytesWritable, 
         // source records and throw the matching? Suspect the latter, kill them for now
         normstring.trim().replaceAll(' ', '')
     }
+    */
 }
-*/
+
 public class InputToOutputReducer extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable>
 {
     @Override
