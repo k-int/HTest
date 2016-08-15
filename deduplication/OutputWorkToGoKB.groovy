@@ -21,6 +21,8 @@ import org.apache.hadoop.hbase.client.HBaseAdmin
 import org.apache.hadoop.hbase.client.HTable
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+import org.apache.hadoop.fs.Path
 import groovy.time.*
 import java.util.Properties
 import static groovy.json.JsonOutput.*
@@ -58,6 +60,8 @@ TableMapReduceUtil.initTableMapperJob(
         job);
 
 job.setReducerClass(MapOutputWorkToGoKBReducer.class)
+
+FileOutputFormat.setOutputPath(job, new Path("/tmp/records/output"));
 job.setNumReduceTasks(1);   // at least one, adjust as required
 
 boolean b = job.waitForCompletion(true);
@@ -92,6 +96,6 @@ public class MapOutputWorkToGoKBReducer extends Reducer<ImmutableBytesWritable, 
         for (Text val : values) {
             text = val
         }
-        
+
     }
 }
