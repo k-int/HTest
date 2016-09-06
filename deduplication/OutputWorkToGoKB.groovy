@@ -10,6 +10,7 @@
         @Grab(group='org.apache.hadoop', module='hadoop-common', version='2.7.2'),
         @Grab(group='org.apache.hadoop', module='hadoop-mapreduce-client-core', version='2.7.2'),
         @Grab(group='org.apache.hadoop', module='hadoop-mapreduce-client-jobclient', version='2.7.2'),
+	  @Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7.2'),
         @GrabExclude('org.codehaus.groovy:groovy-all')
 ])
 
@@ -40,8 +41,15 @@ import org.apache.hadoop.hbase.KeyValue
 import org.apache.hadoop.mapred.lib.NullOutputFormat
 import java.security.MessageDigest
 import groovy.xml.StreamingMarkupBuilder
-import java.text.Normalizer
 
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.URIBuilder
+import groovyx.net.http.*
+import static groovyx.net.http.ContentType.JSON
+import static groovyx.net.http.Method.GET
+import static groovyx.net.http.Method.POST
+import java.text.Normalizer
+import java.nio.charset.StandardCharsets
 
 Configuration config = HBaseConfiguration.create();
 Job job = new Job(config,'Job')
@@ -90,12 +98,74 @@ public class MapOutputWorkToGoKBMapper extends TableMapper<ImmutableBytesWritabl
 
 public class MapOutputWorkToGoKBReducer extends Reducer<ImmutableBytesWritable, Text, ImmutableBytesWritable, Text>  {
 
-    public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+    @Override
+    public void reduce(ImmutableBytesWritable key, Iterable<Text> values, org.apache.hadoop.mapreduce.Reducer.Context context) throws IOException, InterruptedException {
         Text text = null
+	def config = null;
+	def cfg_file = new File('./sync-gokb-titles-cfg.json')
+	
+	if ( cfg_file.exists() ) {
+	  config = new JsonSlurper().parseText(cfg_file.text);
+	}
+	else {
+	  config=[:]
+	}
+	
+	def httpbuilder = new HTTPBuilder( 'http://localhost:8080' )
+	httpbuilder.auth.basic 'admin','admin'
+
+	//config.uploadUser, config.uploadPass
 
         for (Text val : values) {
             text = val
-        }
-
+	    String keyString  = new String(key.get(), StandardCharsets.UTF_8);
+	    String valString  = val.toString()
+	    def body = addToGoKB(false, httpbuilder,keyString, valString)
+	    if (body) text = body
+	    
+	    context.write(new ImmutableBytesWritable(key),val)
+	}
     }
+    
+
+  def addToGoKB(dryrun, gokb, hash, title_data) {
+
+  if ( dryrun ) {
+    
+  }
+  else {
+
+    def resourceFieldMap = [ : ]
+    resourceFieldMap['title'] = title_data
+    resourceFieldMap['medium'] = ""
+    resourceFieldMap['identifiers'] = []
+    resourceFieldMap['publisherHistory'] = []
+    resourceFieldMap['publishedFrom'] = ""
+    resourceFieldMap['publishedTo'] = ""
+    resourceFieldMap['continuingSeries'] = ""
+    resourceFieldMap['OAStatus'] = ""
+    resourceFieldMap['imprint'] = ""
+    resourceFieldMap['issuer'] = ""
+    resourceFieldMap['variantNames'] = []
+    resourceFieldMap['historyEvents'] = []
+    resourceFieldMap['type'] = 'Serial'
+
+    resourceFieldMap.identifiers.add([type:"bucket_hash", value:hash])
+				     
+    gokb.request(Method.POST) { req ->
+      uri.path='/gokb/integration/crossReferenceTitle'
+      body = resourceFieldMap
+      requestContentType = ContentType.JSON
+	
+      response.success = { resp ->
+        println "Success! ${resp.status}"
+      }
+
+      response.failure = { resp ->
+        println "Request failed with status ${resp.status}"
+        println (title_data)
+      }
+    }
+  }
+  }
 }
