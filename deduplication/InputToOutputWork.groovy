@@ -1,3 +1,4 @@
+
 #!groovy
 
 @Grapes([
@@ -54,7 +55,7 @@ TableMapReduceUtil.initTableMapperJob(
         scan,               // Scan instance to control CF and attribute selection
         MapInputToOutputMapper.class,     // mapper class
         ImmutableBytesWritable.class,
-        Text.class,
+        Put.class,
         job);
 
 //org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job, new org.apache.hadoop.fs.Path("/tmp/records/input"));
@@ -73,7 +74,7 @@ if (!b) {
 }
 
 
-public class MapInputToOutputMapper extends TableMapper<ImmutableBytesWritable, Text> {
+public class MapInputToOutputMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
     public static byte[] NBK_FAMILY = Bytes.toBytes('nbk');
     public static byte[] SYN_COL = Bytes.toBytes('recsyn');
@@ -100,9 +101,55 @@ public class MapInputToOutputMapper extends TableMapper<ImmutableBytesWritable, 
             def parsed_xml = new XmlSlurper().parseText(record_xml_as_text).declareNamespace(tag0: "tag0");
             def discriminator = null;
 
-            String title_hash_str = new String (parsed_xml.titleInfo.title?.text())
+            String title_hash_str = new String (parsed_xml.titleInfo.title?.text());
+
+	    String subtitle = new String(parsed_xml.titleInfo.subTitle?.text());
+	    
+	    def name_node = parsed_xml.'**'.find { name ->
+	      name.@type == 'personal'
+	    }
+
+	    def identifiers = parsed_xml.'*'.findAll { node ->
+	      node.name() == 'identifier' && node.@type.text().length() > 0
+	    }
+
+	    String edition = new String(parsed_xml.classification?.@edition.text())
+
+	    String name = name_node ? new String(name_node?.namePart?.text()) : ''
+	    /*
+	    println(">>>>")
+	    println("title: " + title_hash_str)
+	    
+	    if(name.length() > 0){
+	      println("name: " + name)
+	    }
+	    if(subtitle.length() > 0){
+	      println("subtitle: " + subtitle)
+	    }
+	     if(edition.length() > 0){
+	      println("edition: " + edition)
+	    }
+
+	    */
+	    def identifierMap = []
+	    
+	     identifiers.each{
+	       if(it.text().length() > 0 )
+		 identifierMap.add([type:it.@type, value:it.text()])
+	     }
+
+	     def identifier_str = identifierMap.inspect()
+	     
+	     def key = new ImmutableBytesWritable(work_bytes)
+	     Put put = new Put(key.get());
+             put.add(Bytes.toBytes("nbk"), Bytes.toBytes("title"), Bytes.toBytes(title_hash_str));
+	     put.add(Bytes.toBytes("nbk"), Bytes.toBytes("subtitle"), Bytes.toBytes(subtitle));
+	     put.add(Bytes.toBytes("nbk"), Bytes.toBytes("author"), Bytes.toBytes(name));
+	     put.add(Bytes.toBytes("nbk"), Bytes.toBytes("edition"), Bytes.toBytes(edition));
+	     put.add(Bytes.toBytes("nbk"), Bytes.toBytes("identifiers"), Bytes.toBytes(identifier_str));
+
 //            def after_hash = normalise(['BKM', parsed_xml.titleInfo.title?.text(), parsed_xml.titleInfo.subTitle?.text(), discriminator])
-            context.write(new ImmutableBytesWritable(work_bytes), new Text(title_hash_str));
+            context.write(new ImmutableBytesWritable(work_bytes), put);
             }
 
         }
@@ -157,15 +204,12 @@ public class MapInputToOutputMapper extends TableMapper<ImmutableBytesWritable, 
     */
 }
 
-public class InputToOutputReducer extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable>
+public class InputToOutputReducer extends TableReducer<ImmutableBytesWritable, Put, ImmutableBytesWritable>
 {
     @Override
-    public void reduce(ImmutableBytesWritable key, Iterable<Text> values, org.apache.hadoop.mapreduce.Reducer.Context context) throws IOException, InterruptedException {
-
-        Put put = new Put(key.get());
-        put.add(Bytes.toBytes("nbk"), Bytes.toBytes("title"), Bytes.toBytes(values.first().toString()));
-        //put.add(Bytes.toBytes("nbk"), Bytes.toBytes("title"), Bytes.toBytes(values.size().toString())); Just to count clashes
-        context.write(null, put);
+    public void reduce(ImmutableBytesWritable key, Iterable<Put> values, org.apache.hadoop.mapreduce.Reducer.Context context) throws IOException, InterruptedException {
+      
+      context.write(null, values.first());
 
     }
 }

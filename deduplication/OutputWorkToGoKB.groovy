@@ -82,17 +82,47 @@ public class MapOutputWorkToGoKBMapper extends TableMapper<ImmutableBytesWritabl
 
     public static byte[] NBK_FAMILY = Bytes.toBytes('nbk');
     public static byte[] TITLE_COL = Bytes.toBytes('title')
+    public static byte[] AUTHOR_COL = Bytes.toBytes('author')
+    public static byte[] IDENTIFIERS_COL = Bytes.toBytes('identifiers')
 
     @Override
     public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
 
         String title = null;
-
+	String author = null;
+	String identifiers = null;
+	
         byte[] title_bytes = value.getValue(NBK_FAMILY, TITLE_COL)
         if (title_bytes) title = new String(title_bytes);
 
-        context.write(row, new Text(title));
+	byte[] author_bytes = value.getValue(NBK_FAMILY, AUTHOR_COL)
+        if (author_bytes) author = new String(author_bytes);
 
+	byte[] identifiers_bytes = value.getValue(NBK_FAMILY, IDENTIFIERS_COL)
+	if (identifiers_bytes) identifiers = new String (identifiers_bytes);
+
+	String rowstring = new String(row.get(), StandardCharsets.UTF_8);
+
+	 def resourceFieldMap = [ : ]
+	 resourceFieldMap['title'] = title
+	 resourceFieldMap['medium'] = ""
+	 resourceFieldMap['identifiers'] = Eval.me(identifiers)
+	 resourceFieldMap['publisherHistory'] = []
+	 resourceFieldMap['publishedFrom'] = ""
+	 resourceFieldMap['publishedTo'] = ""
+	 resourceFieldMap['continuingSeries'] = ""
+	 resourceFieldMap['OAStatus'] = ""
+	 resourceFieldMap['imprint'] = ""
+	 resourceFieldMap['issuer'] = ""
+	 resourceFieldMap['variantNames'] = []
+	 resourceFieldMap['historyEvents'] = []
+	 resourceFieldMap['type'] = 'Serial'
+
+	 resourceFieldMap.identifiers.add([type:"bucket_hash", value:rowstring])
+
+	 Text mapText = new Text(resourceFieldMap.inspect())
+	 context.write(row, mapText)
+	 
     }
 }
 
@@ -100,8 +130,8 @@ public class MapOutputWorkToGoKBReducer extends Reducer<ImmutableBytesWritable, 
 
     @Override
     public void reduce(ImmutableBytesWritable key, Iterable<Text> values, org.apache.hadoop.mapreduce.Reducer.Context context) throws IOException, InterruptedException {
-        Text text = null
-	def config = null;
+
+      def config = null;
 	def cfg_file = new File('./sync-gokb-titles-cfg.json')
 	
 	if ( cfg_file.exists() ) {
@@ -117,55 +147,36 @@ public class MapOutputWorkToGoKBReducer extends Reducer<ImmutableBytesWritable, 
 	//config.uploadUser, config.uploadPass
 
         for (Text val : values) {
-            text = val
-	    String keyString  = new String(key.get(), StandardCharsets.UTF_8);
-	    String valString  = val.toString()
-	    def body = addToGoKB(false, httpbuilder,keyString, valString)
-	    if (body) text = body
-	    
+	    def body = addToGoKB(true, httpbuilder,val)
 	    context.write(new ImmutableBytesWritable(key),val)
 	}
     }
     
 
-  def addToGoKB(dryrun, gokb, hash, title_data) {
-
-  if ( dryrun ) {
+  def addToGoKB(dryrun, gokb, mapText){
     
-  }
-  else {
-
-    def resourceFieldMap = [ : ]
-    resourceFieldMap['title'] = title_data
-    resourceFieldMap['medium'] = ""
-    resourceFieldMap['identifiers'] = []
-    resourceFieldMap['publisherHistory'] = []
-    resourceFieldMap['publishedFrom'] = ""
-    resourceFieldMap['publishedTo'] = ""
-    resourceFieldMap['continuingSeries'] = ""
-    resourceFieldMap['OAStatus'] = ""
-    resourceFieldMap['imprint'] = ""
-    resourceFieldMap['issuer'] = ""
-    resourceFieldMap['variantNames'] = []
-    resourceFieldMap['historyEvents'] = []
-    resourceFieldMap['type'] = 'Serial'
-
-    resourceFieldMap.identifiers.add([type:"bucket_hash", value:hash])
-				     
-    gokb.request(Method.POST) { req ->
-      uri.path='/gokb/integration/crossReferenceTitle'
-      body = resourceFieldMap
-      requestContentType = ContentType.JSON
-	
-      response.success = { resp ->
-        println "Success! ${resp.status}"
-      }
-
-      response.failure = { resp ->
-        println "Request failed with status ${resp.status}"
-        println (title_data)
-      }
+    if ( dryrun ) {
+      println(Eval.me(mapText.toString()))
     }
-  }
+    else {
+
+      def resourceFieldMap = Eval.me(mapText.toString())
+    				     
+      gokb.request(Method.POST) { req ->
+	uri.path='/gokb/integration/crossReferenceTitle'
+	body = resourceFieldMap
+	requestContentType = ContentType.JSON
+	
+	response.success = { resp ->
+	  println "Success! ${resp.status}"
+	}
+
+	response.failure = { resp ->
+	  println "Request failed with status ${resp.status}"
+	  println (title_data)
+	}
+	
+      } 
+    }
   }
 }
