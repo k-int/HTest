@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marc:record xmlns:marc="http://www.loc.gov/MARC21/slim"><marc:leader>     nam  22     uu 4500</marc:leader><marc:controlfield tag="001">1200</marc:controlfield><marc:controlfield tag="003">UkMaC</marc:controlfield><marc:controlfield tag="008">      |1954    un |||||||||||||||||ukr||</marc:controlfield>
+	
+	
+	<marc:datafield tag="260" ind1=" " ind2=""/>
+	<marc:datafield tag="260" ind1=" " ind2=""><marc:subfield code="c">1954</marc:subfield></marc:datafield>
+	<marc:datafield tag="010" ind1=" " ind2=" "><marc:subfield code="a">   55057514</marc:subfield></marc:datafield>
+	
+		
+	
+	
+	<marc:datafield tag="110" ind1="2" ind2=" "><marc:subfield code="a">Instytut movoznavstva im. O.O. Potebni.</marc:subfield><marc:subfield code="e">creator</marc:subfield></marc:datafield>
+	<marc:datafield tag="245" ind1="1" ind2="0"><marc:subfield code="a">Poltavsʹko-kyïvsʹkyĭ dialekt--osnova ukraïnsʹkoï natsionalʹnoï movy</marc:subfield><marc:subfield code="b">zbirnyk stateĭ</marc:subfield><marc:subfield code="c">[redaktsiĭna kolehii͡a: L.A. Bulakhovsʹkiĭ (holovnyĭ redaktor) ta inshi.].</marc:subfield></marc:datafield>
+	
+	<marc:datafield tag="260" ind1=" " ind2=""><marc:subfield code="a">Kyïv</marc:subfield><marc:subfield code="b">Vyd-vo Akademiï nauk Ukr. RSR</marc:subfield><marc:subfield code="c">1954</marc:subfield></marc:datafield>
+	
+		<marc:datafield tag="300" ind1=" " ind2=" "><marc:subfield code="a">223 p. ; 23 cm.</marc:subfield></marc:datafield>
+	
+	<marc:datafield tag="500" ind1=" " ind2=" "><marc:subfield code="a">Includes bibliographical references.</marc:subfield></marc:datafield>
+	<marc:datafield tag="650" ind1="1" ind2=" "><marc:subfield code="a">Ukrainian language.</marc:subfield></marc:datafield>
+	<marc:datafield tag="650" ind1="1" ind2=" "><marc:subfield code="a">Ukrainian language</marc:subfield><marc:subfield code="x">Dialects</marc:subfield><marc:subfield code="z">Ukraine</marc:subfield><marc:subfield code="z">Poltava.</marc:subfield></marc:datafield>
+	<marc:datafield tag="650" ind1="1" ind2=" "><marc:subfield code="a">Ukrainian language</marc:subfield><marc:subfield code="x">Dialects</marc:subfield><marc:subfield code="z">Ukraine</marc:subfield><marc:subfield code="z">Kiev.</marc:subfield></marc:datafield>
+	<marc:datafield tag="650" ind1="1" ind2=" "><marc:subfield code="a">Ukrainian language</marc:subfield><marc:subfield code="x">Dialects</marc:subfield><marc:subfield code="z">Ukraine</marc:subfield><marc:subfield code="z">Kiev (Oblast)</marc:subfield></marc:datafield>
+	<marc:datafield tag="650" ind1="1" ind2=" "><marc:subfield code="a">Ukrainian language</marc:subfield><marc:subfield code="x">History.</marc:subfield></marc:datafield>
+	<marc:datafield tag="650" ind1="1" ind2=" "><marc:subfield code="a">Ukrainian language</marc:subfield><marc:subfield code="x">Dialects.</marc:subfield></marc:datafield>
+	<marc:datafield tag="700" ind1="1" ind2=" "><marc:subfield code="a">Bulakhovskiĭ, Leonid Arsenʹevich</marc:subfield><marc:subfield code="d">1888-1961.</marc:subfield></marc:datafield>
+	<marc:datafield tag="710" ind1="2" ind2=" "><marc:subfield code="a">Instytut movoznavstva im. O.O. Potebni.</marc:subfield></marc:datafield>
+	<marc:datafield tag="887" ind1=" " ind2=" "><marc:subfield code="a">
+		
+			
+				
+					18602709
+					2063890
+					20160329
+				
+				text
+				
+					multipart monograph
+				
+				
+					aacr
+				
+				
+					1954
+					
+						un 
+					
+				
+				
+					Poltavsʹko-kyïvsʹkyĭ dialekt-osnova ukraïnsʹkoï nat︠s︡ionalʹnoï movy
+					zbirnyk stateĭ
+				
+				[red. kolegii︠a︡ L.A.Bulakhovsʹkyĭ ... et al.].
+				
+					
+						Kyïv
+					
+					1954
+				
+				
+					23cm.
+				
+				At head of title: Akad. Nauk Ukraïnsʹkoĭ RSR, Inst. Movoznavstva im O.O. Potebni.
+				
+					Ukrainian language
+					Dialects.
+				
+				
+					Bulakhovskiĭ, Leonid Arsenʹevich
+					1888-1961.
+				
+				
+					Nat︠s︡ionalʹna akademii︠a︡ nauk Ukraïny. Instytut movoznavstva.
+				
+				
+					ukr
+					Ukrainian
+				
+				
+					
+						
+							UkCU
+							18602709
+							
+								
+									3fNW6
+									777.c.95.49
+								
+							
+						
+					
+				
+				
+					
+						copbok
+						coppri
+						m21bk
+						rtypa
+					
+				
+			
+			
+				
+					103679137
+					992216593502466
+					20160329
+				
+				text
+				
+					single unit
+				
+				
+					1954
+					
+						un 
+					
+				
+				
+					Poltavsʹko-kyivsʹkyĭ dialekt
+					osnova ukrainsʹkoi natsionalʹnoi movy ; zbirnyk stateĭ.
+				
+				
+					
+						Kyiv
+					
+					1954
+				
+				
+					Bulakhovskiĭ, Leonid Arsenʹevich
+					1888-1961.
+				
+				
+					print
+					unmediated
+					volume
+				
+				text
+				
+					ukr
+					Ukrainian
+				
+				
+					
+						
+							StEdU
+							103679137
+							
+								
+									MAIN MAIN-GEN4
+									49179 Bul
+								
+							
+						
+					
+				
+				
+					
+						copbok
+						coppri
+						m21bk
+						rtypa
+					
+				
+			
+			
+				
+					68505390
+					013478366
+					20160329
+				
+				text
+				
+					single unit
+				
+				
+					aacr
+				
+				
+					1954
+					
+						un 
+					
+				
+				
+					CSt
+				
+				
+					Poltavsʹko-kyïvsʹkyĭ dialekt--osnova ukraïnsʹkoï nat͡sionalʹnoï movy
+					zbirnyk stateĭ
+				
+				red. kol. L.A. Bulakhovsʹkyĭ (hol. red.) ... [i dr.]
+				
+					
+						Kyïv
+					
+					Vyd-vo Akademiï nauk Ukraïnsʹkoï RSR
+					1954
+				
+				
+					223 p. ; 23 cm.
+				
+				Errata slip inserted.
+				Includes bibliographical references.
+				
+					Ukrainian language
+					Dialects
+					Ukraine
+					Poltava.
+				
+				
+					Ukrainian language
+					Dialects
+					Ukraine
+					Kiev (Oblast)
+				
+				
+					Ukrainian language
+					History.
+				
+				
+					Bulakhovskiĭ, Leonid Arsenʹevich
+					1888-1961.
+				
+				
+					Instytut movoznavstva im. O.O. Potebni.
+				
+				
+					print
+				
+				Bibliography
+				
+					ukr
+					Ukrainian
+				
+				
+					
+						
+							UkOxU
+							68505390
+							
+								
+									Taylor Slavonic Library
+									PG3898.P7.P7
+								
+							
+						
+					
+				
+				
+					
+						copbok
+						coppri
+						m21bk
+						rtypa
+					
+				
+			
+			
+				
+					82943142
+					001840259
+					20160329
+				
+				text
+				
+					single unit
+				
+				
+					aacr
+				
+				
+					1954
+					
+						un 
+					
+				
+				   55057514
+				
+					DLC
+					
+						eng
+					
+				
+				
+					e-un---
+				
+				PG3814 .A5
+				
+					Instytut movoznavstva im. O.O. Potebni.
+					
+						creator
+					
+				
+				
+					Poltavsʹko-kyïvsʹkyĭ dialekt--osnova ukraïnsʹkoï natsionalʹnoï movy
+					zbirnyk stateĭ
+				
+				[redaktsiĭna kolehii͡a: L.A. Bulakhovsʹkiĭ (holovnyĭ redaktor) ta inshi.].
+				
+					
+						Kyïv
+					
+					Vyd-vo Akademiï nauk Ukr. RSR
+					1954
+				
+				
+					223 p. ; 23 cm.
+				
+				
+					Ukrainian language.
+				
+				
+					Ukrainian language
+					Dialects
+					Ukraine
+					Poltava.
+				
+				
+					Ukrainian language
+					Dialects
+					Ukraine
+					Kiev.
+				
+				
+					Bulakhovskiĭ, Leonid Arsenʹevich
+					1888-1961.
+				
+				
+					print
+				
+				
+					ukr
+					Ukrainian
+				
+				
+					
+						
+							UkLUC
+							82943142
+							
+								
+									STORE
+									SSDEP STORE 14-0728
+									Standard
+								
+							
+						
+					
+				
+				
+					
+						copbok
+						coppri
+						m21bk
+						rtypa
+					
+				
+			
+		
+	</marc:subfield></marc:datafield>
+	
+		
+		<marc:datafield tag="337" ind1=" " ind2=" "><marc:subfield code="a">unmediated</marc:subfield><marc:subfield code="2">rdamedia</marc:subfield></marc:datafield>
+		<marc:datafield tag="338" ind1=" " ind2=" "><marc:subfield code="a">volume</marc:subfield><marc:subfield code="2">rdacarrier</marc:subfield></marc:datafield>
+	
+	<marc:datafield tag="655" ind1=" " ind2="7"><marc:subfield code="a">text</marc:subfield><marc:subfield code="2">rdacontent</marc:subfield></marc:datafield>
+	
+<marc:datafield tag="050" ind1=" " ind2="2"><marc:subfield code="a">PG3814 .A5</marc:subfield></marc:datafield></marc:record>
