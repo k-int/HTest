@@ -54,7 +54,9 @@ httpbuilder.auth.basic config.uploadUser, config.uploadPass
 
 
 println("Pulling latest messages");
-pullLatest(config, httpbuilder, cfg_file)
+def f = new FileInputStream(args[0])
+def mods_record = f.text
+addToGoKB(false, httpbuilder, mods_record)
 println("All done");
 
 def addToGoKB(dryrun, gokb, title_data) {
