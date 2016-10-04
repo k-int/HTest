@@ -38,3 +38,5 @@ Output rdfxml
 export: http://hbase.apache.org/0.94/book/ops_mgt.html#export
 
 http://stackoverflow.com/questions/16542310/hbase-migration-from-standalone-mode-to-fully-distributed-mode
+
+see http://www.programcreek.com/java-api-examples/index.php?api=org.marc4j.MarcXmlReader
